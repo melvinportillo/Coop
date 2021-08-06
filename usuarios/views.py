@@ -22,10 +22,9 @@ class LogoutView(RedirectView):
 
 
 class Paso(TemplateView):
-    template_name='transactions/transaction_report.html'
+    template_name='transactions/Libro_Diario.html'
 
 
-def Cargar(request):
-    return  render(request,"transactions/transaction_report.html")
+
 
 

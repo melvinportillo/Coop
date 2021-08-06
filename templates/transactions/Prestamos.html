@@ -1,0 +1,83 @@
+{% extends 'core/base.html' %}
+
+{% block head_title %}Nuevo Préstamo{% endblock %}
+
+
+
+{% block content %}
+    <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10">Nuevo Préstamo</h1>
+    <hr />
+    <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Cliente
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Cliente" id="Cliente"  required placeholder="Nombre del Cliente">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Identidad
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Identidad" id="Identidad"  required placeholder="Identidad del Cliente">
+             <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Fecha Otorgado
+            </label>
+
+            <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha Otorgado" id="Fecha Otorgado"  required value=today>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Plazo en Meses
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Plazo" id="Plazo"  type="number"  required placeholder="Plazo del Prestamo">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Taza de Interes Anual
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Interes" id="Interes"   type="number"  required placeholder="Interes del Préstamo">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Periodo de Gracia
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Periodo de Gracia" id="Periodo de Gracia"   type="number"  required placeholder="Periodo de Gracia Prestamo">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+               Tasa de Descuento
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Descuento" id="Descuento"   type="number"  required placeholder="Taza de Descuento">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+               Monto
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Monto" id="Monto"   type="number"  required placeholder="Monto del Préstamo">
+        </div>
+        {% if form.amount.errors %}
+            {% for error in form.amount.errors %}
+                <p class="text-red-600 text-sm italic pb-2">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Submit
+        </button>
+    </form>
+    <table class="table-auto mx-auto w-full mt-8">
+        <thead class="bg-gray-800 text-white">
+        <tr class="uppercase font-semibold text-sm">
+            <th class="px-4 py-2">Transaction Type</th>
+            <th class="px-4 py-2">Date</th>
+            <th class="px-4 py-2">Amount</th>
+            <th class="px-4 py-2">Balance After Transaction</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in object_list %}
+        <tr class="{% cycle 'bg-gray-300' 'bg-white-100' %}">
+            <td class="border px-4 py-2 text-center">{{ transaction.get_transaction_type_display }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.timestamp }}</td>
+            <td class="border px-4 py-2 text-center">$ {{ transaction.amount }}</td>
+            <td class="border px-4 py-2 text-center">$ {{ transaction.balance_after_transaction }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="bg-gray-600 text-white">
+            <th class="px-4 py-2 text-right" colspan="3">Final Balance</th>
+            <th class="px-4 py-2 text-center">$ {{ account.balance }}</th>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}
+
+

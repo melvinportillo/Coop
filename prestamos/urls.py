@@ -1,16 +1,14 @@
-
 from django.urls import path
 
-from .views import   Paso
+from .views import   Prestamos
 
 
 app_name = 'prestamos'
 
 urlpatterns = [
     path(
-        "prestamos/", Paso.as_view(),
+        "prestamos/", Prestamos,
         name="prestamos"
     ),
-
 
 ]

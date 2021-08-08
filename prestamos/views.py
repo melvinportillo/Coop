@@ -4,6 +4,9 @@ from django.views.generic import TemplateView, RedirectView
 
 def Prestamos(request):
     if request.method=="post":
+
         return render(request, "transactions/Prestamos.html")
+
+
 
     return  render(request, "transactions/Prestamos.html")

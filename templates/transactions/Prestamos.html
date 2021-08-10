@@ -25,6 +25,11 @@
 
             <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha Otorgado" id="Fecha Otorgado"  required value=today>
             <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Fecha Primera Cuota
+            </label>
+
+            <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha Primera Cuota" id="Fecha Primera Cuota"  required value=today>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
                 Plazo en Meses
             </label>
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Plazo" id="Plazo"  type="number"  required placeholder="Plazo del Prestamo">
@@ -53,7 +58,7 @@
             </ul>
         {% endif %}
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-            Submit
+            Calcular
         </button>
     </form>
     <table class="table-auto mx-auto w-full mt-8">

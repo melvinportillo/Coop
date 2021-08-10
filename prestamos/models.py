@@ -13,7 +13,7 @@ class Datos_prestamos(models.Model):
     Periodo_Gracia= models.IntegerField()
     Taza_Descuento= models.FloatField()
     Monto = models.FloatField()
-    Recargos_mora= models.FloatField()
+
 
 class Acciones_Prestamos(models.Model):
     num_cuota= models.IntegerField()
@@ -22,5 +22,26 @@ class Acciones_Prestamos(models.Model):
     Monto= models.FloatField()
     Capital = models.FloatField()
     Intereses = models.FloatField()
-    Saldo = models.FloatField()
+    Saldo = models.FloatField(
+    )
+
+class Temp_Datos_prestamos(models.Model):
+    id_persona = models.CharField(max_length=15)
+    nombre_cliente = models.CharField(max_length=50)
+    fecha_otorgado = models.DateField()
+    plazo_meses = models.IntegerField()
+    taza_mensual = models.FloatField()
+    Intereses = models.FloatField()
+    Periodo_Gracia = models.IntegerField()
+    Taza_Descuento = models.FloatField()
+    Monto = models.FloatField()
+
+
+class Temp_Acciones_Prestamos(models.Model):
+    num_cuota = models.IntegerField()
+    fecha_cuota = models.DateField()
+    capital = models.FloatField()
+    Intereses = models.FloatField()
+    total_cuota = models.FloatField()
+    saldo = models.FloatField()
 

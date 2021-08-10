@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import   Prestamos
+from .views import   Prestamos, mostra_prestamp
 
 
 app_name = 'prestamos'
@@ -10,5 +10,6 @@ urlpatterns = [
         "prestamos/", Prestamos,
         name="prestamos"
     ),
+    path("prestamos/mostrar/", mostra_prestamp.as_view()),
 
 ]

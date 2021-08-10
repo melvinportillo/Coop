@@ -1,23 +1,21 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from datetime import datetime
 from datetime import timedelta
-from django.template import  Template, context, Context
+from django.template import  Template, Context
 from django import forms
-from django.views.generic import TemplateView, RedirectView
+from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos
+from django.views.generic import TemplateView, RedirectView, ListView
 # Create your views here.
 
 def Prestamos(request):
     if request.method=="POST":
         if validacion_datos(request):
-            ar = open("/home/marco/PycharmProjects/djangoProject/templates/transactions/Prestamos_mostrar.html")
-            Te = Template(ar.read())
-            ar.close()
-            ctx = generar_prestamo(request)
-            final = Te.render(ctx)
-
-            return HttpResponse(final)
+            Temp_Datos_prestamos.objects.all().delete()
+            Temp_Acciones_Prestamos.objects.all().delete()
+            generar_prestamo(request)
+            return  redirect("mostrar/")
 
 
     return  render(request, "transactions/Prestamos.html")
@@ -41,24 +39,28 @@ def validacion_datos(request):
 
 def generar_prestamo(request):
 
-    Tmensual= request.POST['Interes']
-    Tmensual = float(Tmensual)/12
-    lista_cuotas= generar_cuotas(request)
-    ctx = Context({"Cliente": request.POST['Cliente'],
-                   "Identidad": request.POST['Identidad'],
-                   "Fecha_O": request.POST['Fecha Otorgado'],
-                   "Fecha_P": request.POST['Fecha Primera Cuota'],
-                   "Plazo": request.POST['Plazo'],
-                   "Tanual": request.POST['Interes'],
-                   "Tmensual": str(Tmensual),
-                   "Pgracia": request.POST['Periodo de Gracia'],
-                   "Descuento": request.POST['Descuento'],
-                   "Monto": request.POST['Monto'],
-                   "Mora":  "0.0001",
-                   "Lista_Cuotas": lista_cuotas
+    Tanual= float(request.POST['Interes'])/100
+    Tmensual = float(Tanual)/12
+    monto = float(request.POST['Monto'])
+    num_cuotas = int(request.POST['Plazo'])
+    Interese = monto * (Tanual * num_cuotas / 12)
 
-                   })
-    return ctx
+    temp = Temp_Datos_prestamos(
+        id_persona=request.POST['Identidad'],
+        nombre_cliente=request.POST['Cliente'],
+        fecha_otorgado=datetime.strptime(request.POST['Fecha Otorgado'],"%Y-%m-%d").date(),
+        plazo_meses= int(request.POST['Plazo']),
+        taza_mensual= Tmensual,
+        Periodo_Gracia= int(request.POST['Periodo de Gracia']),
+        Taza_Descuento= float(request.POST['Descuento']),
+        Intereses=Interese,
+        Monto= float(request.POST['Monto']),
+
+
+    )
+    temp.save()
+    generar_cuotas(request)
+
 
 def generar_cuotas(request):
     monto = float(request.POST['Monto'])
@@ -67,8 +69,8 @@ def generar_cuotas(request):
     Taza_mensual=(Taza_anual/12)
     num_cuotas = int(request.POST['Plazo'])
     Interese = monto*(Taza_anual*num_cuotas/12)
-    capital_mensual= monto/num_cuotas
-    interes_mensual= Interese/num_cuotas
+    capital_mensual= round(monto/num_cuotas,2)
+    interes_mensual= round(Interese/num_cuotas,2)
     Total_prestamo= monto + Interese
     fecha_1 = request.POST['Fecha Primera Cuota']
     fecha_1= datetime.strptime(fecha_1,"%Y-%m-%d").date()
@@ -76,15 +78,43 @@ def generar_cuotas(request):
     plan_pago=[]
     pagado=0
     for x in range(num_cuotas):
-        mes=[]
-        cuota=x+1
-        fecha = fecha_1 + timedelta(days=30*x)
-        mes.append(fecha)
-        mes.append(cuota)
-        mes.append(capital_mensual)
-        mes.append(interes_mensual)
-        saldo = Total_prestamo-pagado
-        mes.append(saldo)
-        plan_pago.append(mes)
-    return  plan_pago
+        temp =Temp_Acciones_Prestamos(
+            num_cuota=x+1,
+            fecha_cuota=fecha_1 + timedelta(days=30*x),
+            capital= capital_mensual,
+            Intereses= interes_mensual,
+            total_cuota= capital_mensual+interes_mensual,
+            saldo= round(Total_prestamo-pagado,2),
+        )
+        pagado = pagado+ capital_mensual+interes_mensual
+        temp.save()
+
+
+class mostra_prestamp(ListView):
+    template_name = 'transactions/Prestamos_mostrar.html'
+    model = Temp_Acciones_Prestamos
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        info= Temp_Datos_prestamos.objects.all()
+        prest= info[0]
+        context.update({
+            'Cliente': prest.nombre_cliente,
+            'Identidad': prest.id_persona,
+            'Fecha_O': prest.fecha_otorgado,
+            'Plazo': prest.plazo_meses,
+            'Tanual': prest.taza_mensual*12,
+            'Tmensual': prest.taza_mensual,
+            'Pgracia': prest.Periodo_Gracia,
+            'Descuento': prest.Taza_Descuento,
+            'Monto':prest.Monto,
+            'Intereses': prest.Intereses,
+
+            'Mora': "0.0001"
+
+        })
+        return  context
+
+    def get_queryset(self):
+        return Temp_Acciones_Prestamos.objects.all()
+
 

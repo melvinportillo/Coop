@@ -5,9 +5,12 @@ from datetime import datetime
 from datetime import timedelta
 from django.template import  Template, Context
 from django import forms
+from django.views import View
+
 from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos
 from django.views.generic import TemplateView, RedirectView, ListView
 # Create your views here.
+from prestamos.utils import render_to_pdf
 
 def Prestamos(request):
     if request.method=="POST":
@@ -93,6 +96,7 @@ def generar_cuotas(request):
 class mostra_prestamp(ListView):
     template_name = 'transactions/Prestamos_mostrar.html'
     model = Temp_Acciones_Prestamos
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         info= Temp_Datos_prestamos.objects.all()
@@ -118,3 +122,25 @@ class mostra_prestamp(ListView):
         return Temp_Acciones_Prestamos.objects.all()
 
 
+class GeneratePdf(View):
+    def get(self, request, *args, **kwargs):
+        info = Temp_Datos_prestamos.objects.all()
+        prest = info[0]
+        lista= Temp_Acciones_Prestamos.objects.all()
+        context={
+            'Cliente': prest.nombre_cliente,
+            'Identidad': prest.id_persona,
+            'Fecha_O': prest.fecha_otorgado,
+            'Plazo': prest.plazo_meses,
+            'Tanual': prest.taza_mensual * 12,
+            'Tmensual': prest.taza_mensual,
+            'Pgracia': prest.Periodo_Gracia,
+            'Descuento': prest.Taza_Descuento,
+            'Monto': prest.Monto,
+            'Intereses': prest.Intereses,
+            'object_list': lista,
+            'Mora': "0.0001"
+
+        }
+        pdf = render_to_pdf('pdf/prestamo_pdf.html', context)
+        return HttpResponse(pdf, content_type='prestamos/pdf')

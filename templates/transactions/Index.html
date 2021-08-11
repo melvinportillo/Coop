@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+
+{% block head_title %}Nuevo Préstamo{% endblock %}
+
+
+
+{% block content %}
+    <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10"> Préstamos </h1>
+    <hr />
+   <a href="{% url 'prestamos:prestamos' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+                    Nuevo
+   </a>
+
+{% endblock %}
+
+

@@ -3,11 +3,11 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from datetime import datetime
 from datetime import timedelta
-from django.template import  Template, Context
+from django.template import Template, Context, RequestContext
 from django import forms
 from django.views import View
 
-from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos
+from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos, Datos_prestamos, Acciones_Prestamos
 from django.views.generic import TemplateView, RedirectView, ListView
 # Create your views here.
 from prestamos.utils import render_to_pdf
@@ -22,6 +22,9 @@ def Prestamos(request):
 
 
     return  render(request, "transactions/Prestamos.html")
+
+class Inicio(TemplateView):
+    template_name='transactions/Index.html'
 
 def validacion_datos(request):
     id = request.POST['Identidad']
@@ -144,3 +147,41 @@ class GeneratePdf(View):
         }
         pdf = render_to_pdf('pdf/prestamo_pdf.html', context)
         return HttpResponse(pdf, content_type='prestamos/pdf')
+
+def Guardar(request):
+
+    num_prestamos = Datos_prestamos.objects.all().count()
+    id_presta = num_prestamos+1
+    info = Temp_Datos_prestamos.objects.all()
+    prest = info[0]
+    coutas = Temp_Acciones_Prestamos.objects.all()
+    num_cuota = int(prest.plazo_meses)
+    fecha_final = coutas[num_cuota-1].fecha_cuota
+    P1 =Datos_prestamos(
+        id_prestamo=id_presta,
+        nombre_cliente = prest.nombre_cliente,
+        fecha_otorgado = prest.fecha_otorgado,
+        fecha_vencimiento = fecha_final,
+        plazo_meses  = prest.plazo_meses,
+        taza_mensual = prest.taza_mensual,
+        Periodo_Gracia = prest.Periodo_Gracia,
+        Taza_Descuento = prest.Taza_Descuento,
+        Monto= prest.Monto
+
+    )
+    P1.save()
+
+    for cuota in coutas:
+        P2 = Acciones_Prestamos(
+            id_prestamo= id_presta,
+            num_cuota= cuota.num_cuota,
+            Num_recibo=0,
+            Fecha_Pago= cuota.fecha_cuota,
+            Monto= cuota.total_cuota,
+            Capital= cuota.capital,
+            Intereses= cuota.Intereses,
+            Saldo= cuota.saldo
+        )
+        P2.save()
+
+    return render(request, "transactions/Libro_Diario.html")

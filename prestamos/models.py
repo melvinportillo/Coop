@@ -16,6 +16,7 @@ class Datos_prestamos(models.Model):
 
 
 class Acciones_Prestamos(models.Model):
+    id_prestamo = models.IntegerField()
     num_cuota= models.IntegerField()
     Fecha_Pago= models.DateField()
     Num_recibo= models.IntegerField()

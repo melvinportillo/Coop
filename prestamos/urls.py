@@ -1,11 +1,13 @@
 from django.urls import path
 
-from .views import   Prestamos, mostra_prestamp, GeneratePdf
+from .views import   Prestamos, mostra_prestamp, GeneratePdf, Inicio, Guardar
 
 
 app_name = 'prestamos'
 
 urlpatterns = [
+    path("inicio/", Inicio.as_view(), name="inicio"),
+    path("guardar/", Guardar, name = "guardar"),
     path(
         "prestamos/", Prestamos,
         name="prestamos"

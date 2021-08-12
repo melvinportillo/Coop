@@ -279,7 +279,63 @@ class Prestamo_A_Pagar(ListView):
 
         })
         return context
+
     def get_queryset(self):
         id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
         id_p = int(id_prestamo.valor)
         return Acciones_Prestamos.objects.filter(id_prestamo=id_p)
+
+    def post(self, request, *args, **kwargs):
+        id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
+        id_p = int(id_prestamo.valor)
+        cuota = int(request.POST['Num_Cuota'])
+        cuoata_apagar= Acciones_Prestamos.objects.get(id_prestamo=id_p, num_cuota=cuota)
+        cuoata_apagar.Pago= float(request.POST['Monto'])
+        cuoata_apagar.Num_recibo = int(request.POST['Recibo'])
+        cuoata_apagar.save()
+        id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
+        id_p = int(id_prestamo.valor)
+        datos_prestamo = Datos_prestamos.objects.get(id_prestamo=id_p)
+        ob = Acciones_Prestamos.objects.filter(id_prestamo=id_p)
+        context = {
+            'Cliente': datos_prestamo.nombre_cliente,
+            'Identidad': datos_prestamo.id_cliente,
+            'Fecha_O': datos_prestamo.fecha_otorgado,
+            'Plazo': datos_prestamo.plazo_meses,
+            'Tanual': datos_prestamo.taza_mensual * 12,
+            'Tmensual': datos_prestamo.taza_mensual,
+            'Pgracia': datos_prestamo.Periodo_Gracia,
+            'Descuento': datos_prestamo.Taza_Descuento,
+            'Monto': datos_prestamo.Monto,
+            'Mora': "0.0001",
+            'Id_Prestamo': id_p,
+            'object_list': ob
+
+        }
+
+
+
+        return  render(request,"transactions/Mostra A Pagar.html",context)
+
+class GeneratePdf1(View):
+    def get(self, request, *args, **kwargs):
+        id_prestamo= Variables_Generales.objects.get(variable="Id_Prestamo_1")
+        id_p = int(id_prestamo.valor)
+        datos_prestamo = Datos_prestamos.objects.get(id_prestamo=id_p)
+        lista = Acciones_Prestamos.objects.filter(id_prestamo=id_p)
+        context={
+            'Cliente': datos_prestamo.nombre_cliente,
+            'Identidad': datos_prestamo.id_cliente,
+            'Fecha_O': datos_prestamo.fecha_otorgado,
+            'Plazo': datos_prestamo.plazo_meses,
+            'Tanual': datos_prestamo.taza_mensual * 12,
+            'Tmensual': datos_prestamo.taza_mensual,
+            'Pgracia': datos_prestamo.Periodo_Gracia,
+            'Descuento': datos_prestamo.Taza_Descuento,
+            'Monto': datos_prestamo.Monto,
+            'object_list': lista,
+            'Mora': "0.0001"
+
+        }
+        pdf = render_to_pdf('pdf/prestamo_con_pagos.html', context)
+        return HttpResponse(pdf, content_type='prestamos/pdf')

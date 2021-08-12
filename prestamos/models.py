@@ -4,6 +4,7 @@ from django.db import models
 
 
 class Datos_prestamos(models.Model):
+    id_cliente = models.CharField(max_length=15)
     id_prestamo= models.IntegerField()
     nombre_cliente= models.CharField(max_length=50)
     fecha_otorgado= models.DateField()
@@ -23,6 +24,7 @@ class Acciones_Prestamos(models.Model):
     Monto= models.FloatField()
     Capital = models.FloatField()
     Intereses = models.FloatField()
+    Pago = models.FloatField()
     Saldo = models.FloatField(
     )
 
@@ -46,3 +48,6 @@ class Temp_Acciones_Prestamos(models.Model):
     total_cuota = models.FloatField()
     saldo = models.FloatField()
 
+class Variables_Generales(models.Model):
+    variable = models.CharField(max_length=50)
+    valor = models.CharField(max_length=50)

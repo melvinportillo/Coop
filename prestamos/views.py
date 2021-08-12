@@ -7,7 +7,7 @@ from django.template import Template, Context, RequestContext
 from django import forms
 from django.views import View
 
-from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos, Datos_prestamos, Acciones_Prestamos
+from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos, Datos_prestamos, Acciones_Prestamos, Variables_Generales
 from django.views.generic import TemplateView, RedirectView, ListView
 # Create your views here.
 from prestamos.utils import render_to_pdf
@@ -159,6 +159,7 @@ def Guardar(request):
     fecha_final = coutas[num_cuota-1].fecha_cuota
     P1 =Datos_prestamos(
         id_prestamo=id_presta,
+        id_cliente= prest.id_persona,
         nombre_cliente = prest.nombre_cliente,
         fecha_otorgado = prest.fecha_otorgado,
         fecha_vencimiento = fecha_final,
@@ -185,3 +186,100 @@ def Guardar(request):
         P2.save()
 
     return render(request, "transactions/Libro_Diario.html")
+
+def Buscar_Prestamo(request):
+    if request.method=="POST":
+
+            identidad = request.POST['Identidad']
+            va = Variables_Generales.objects.filter(variable="Identidad_1")
+            if len(va) ==0:
+                n_v=Variables_Generales(
+                        variable="Identidad_1",
+                        valor= identidad
+                )
+                n_v.save()
+            else:
+                n_v = va[0]
+                n_v.valor = identidad
+                n_v.save()
+
+
+            return  redirect("persona/")
+
+
+    return  render(request, "transactions/Buscar_Prestamos.html")
+
+class ListaPrestamos(ListView):
+    template_name = 'transactions/Mostrar Prestamos.html'
+    model = Datos_prestamos
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        id_b = Variables_Generales.objects.get(variable="Identidad_1")
+        value_id = id_b.valor
+        list_prestamos= Datos_prestamos.objects.filter(id_cliente=value_id)
+        cliente= ""
+        id =""
+        if len(list_prestamos)==0:
+                cliente = "No se encontró cliente"
+                id = "No se encontró cliente"
+        else:
+                prestamo_0= list_prestamos[0]
+                cliente = prestamo_0.nombre_cliente
+                id =prestamo_0.id_cliente
+        context.update({
+            'Cliente': cliente,
+            'Identidad': id,
+        })
+        return context
+
+    def get_queryset(self):
+        id_b = Variables_Generales.objects.get(variable="Identidad_1")
+        value_id = id_b.valor
+        return Datos_prestamos.objects.filter(id_cliente=value_id)
+
+    def post(self, request, *args, **kwargs):
+        identidad = request.POST['Id_Prestamo']
+        va = Variables_Generales.objects.filter(variable="Id_Prestamo_1")
+        if len(va) == 0:
+            n_v = Variables_Generales(
+                variable="Id_Prestamo_1",
+                valor=identidad
+            )
+            n_v.save()
+        else:
+            n_v = va[0]
+            n_v.valor = identidad
+            n_v.save()
+        return  redirect("prestamo/")
+
+
+class Prestamo_A_Pagar(ListView):
+    template_name = "transactions/Mostra A Pagar.html"
+    model = Acciones_Prestamos
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
+        id_p= int(id_prestamo.valor)
+        datos_prestamo= Datos_prestamos.objects.get(id_prestamo=id_p)
+        context.update({
+            'Cliente': datos_prestamo.nombre_cliente,
+            'Identidad': datos_prestamo.id_cliente,
+            'Fecha_O': datos_prestamo.fecha_otorgado,
+            'Plazo': datos_prestamo.plazo_meses,
+            'Tanual': datos_prestamo.taza_mensual*12,
+            'Tmensual': datos_prestamo.taza_mensual,
+            'Pgracia':  datos_prestamo.Periodo_Gracia,
+            'Descuento': datos_prestamo.Taza_Descuento,
+            'Monto': datos_prestamo.Monto,
+            'Mora': "0.0001",
+            'Id_Prestamo': id_p
+
+
+        })
+        return context
+    def get_queryset(self):
+        id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
+        id_p = int(id_prestamo.valor)
+        return Acciones_Prestamos.objects.filter(id_prestamo=id_p)

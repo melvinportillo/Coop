@@ -181,6 +181,7 @@ def Guardar(request):
             Monto= cuota.total_cuota,
             Capital= cuota.capital,
             Intereses= cuota.Intereses,
+            Pago= 0,
             Saldo= cuota.saldo
         )
         P2.save()

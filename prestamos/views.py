@@ -37,7 +37,7 @@ def validacion_datos(request):
     FP = datetime.strptime(FP,"%Y-%m-%d").date()
     delta= FP-FO
     dias = int(delta.days)
-    if dias<=30:
+    if dias<30:
         messages.error(request, "Error Fecha de Pago de Primera Cuota ", "Debe medir 13")
         return False
     return  True
@@ -49,7 +49,7 @@ def generar_prestamo(request):
     Tmensual = float(Tanual)/12
     monto = float(request.POST['Monto'])
     num_cuotas = int(request.POST['Plazo'])
-    Interese = monto * (Tanual * num_cuotas / 12)
+    Interese = generar_cuotas(request)
 
     temp = Temp_Datos_prestamos(
         id_persona=request.POST['Identidad'],
@@ -65,7 +65,7 @@ def generar_prestamo(request):
 
     )
     temp.save()
-    generar_cuotas(request)
+
 
 
 def generar_cuotas(request):
@@ -74,26 +74,62 @@ def generar_cuotas(request):
     Taza_anual=Taza_anual/100
     Taza_mensual=(Taza_anual/12)
     num_cuotas = int(request.POST['Plazo'])
-    Interese = monto*(Taza_anual*num_cuotas/12)
-    capital_mensual= round(monto/num_cuotas,2)
-    interes_mensual= round(Interese/num_cuotas,2)
-    Total_prestamo= monto + Interese
+    pe_gracia = int(request.POST['Periodo de Gracia'])
+    cuotas_validas= num_cuotas-pe_gracia
+    capital_mensual= round(monto/cuotas_validas,2)
     fecha_1 = request.POST['Fecha Primera Cuota']
     fecha_1= datetime.strptime(fecha_1,"%Y-%m-%d").date()
-
-    plan_pago=[]
-    pagado=0
+    saldo = monto
+    descuento = float(request.POST['Descuento'])
+    interes_total=0
     for x in range(num_cuotas):
-        temp =Temp_Acciones_Prestamos(
+        interes = round(saldo*Taza_mensual,2)
+        capital_cuota= capital_mensual
+        if x+1<= pe_gracia:
+            capital_cuota=0
+        fecha_cuota = fecha_1+ timedelta(days=30*x)
+        saldo = round(saldo - capital_cuota, 2)
+        cuota = Temp_Acciones_Prestamos(
             num_cuota=x+1,
-            fecha_cuota=fecha_1 + timedelta(days=30*x),
-            capital= capital_mensual,
-            Intereses= interes_mensual,
-            total_cuota= capital_mensual+interes_mensual,
-            saldo= round(Total_prestamo-pagado,2),
+            fecha_cuota=fecha_cuota,
+            Descuento=0,
+            capital= capital_cuota,
+            Intereses= interes,
+            total_cuota= round(capital_cuota+interes,2),
+            saldo=saldo
+
         )
-        pagado = pagado+ capital_mensual+interes_mensual
-        temp.save()
+
+        interes_total=interes_total+interes
+        cuota.save()
+    num_c = num_cuotas
+    while descuento >0:
+        cuota = Temp_Acciones_Prestamos.objects.get(num_cuota=num_c)
+        capital_cuota= cuota.capital
+        interes = cuota.Intereses
+        saldo = cuota.saldo
+        total_cuota=0
+        delta = capital_cuota-descuento
+        new_capital=0
+        des_aplicado=0
+        if delta<0:
+            descuento=descuento-capital_cuota
+            des_aplicado=capital_cuota
+        else:
+            new_capital=delta
+            des_aplicado=capital_cuota-delta
+            new_saldo=saldo-delta
+            descuento=0
+
+        total_cuota = new_capital + interes
+        #cuota.capital=round(new_capital,2)
+        cuota.total_cuota=round(total_cuota,2)
+        cuota.Descuento=round(des_aplicado,2)
+        cuota.save()
+        num_c=num_c-1
+
+    return  interes_total
+
 
 
 class mostra_prestamp(ListView):
@@ -156,6 +192,7 @@ def Guardar(request):
     prest = info[0]
     coutas = Temp_Acciones_Prestamos.objects.all()
     num_cuota = int(prest.plazo_meses)
+    desc= Temp_Acciones_Prestamos.Descuento
     fecha_final = coutas[num_cuota-1].fecha_cuota
     P1 =Datos_prestamos(
         id_prestamo=id_presta,
@@ -180,6 +217,7 @@ def Guardar(request):
             Fecha_Pago= cuota.fecha_cuota,
             Monto= cuota.total_cuota,
             Capital= cuota.capital,
+            Descuento=cuota.Descuento,
             Intereses= cuota.Intereses,
             Pago= 0,
             Saldo= cuota.saldo

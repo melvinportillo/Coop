@@ -23,6 +23,7 @@ class Acciones_Prestamos(models.Model):
     Num_recibo= models.IntegerField()
     Monto= models.FloatField()
     Capital = models.FloatField()
+    Descuento = models.FloatField()
     Intereses = models.FloatField()
     Pago = models.FloatField()
     Saldo = models.FloatField(
@@ -44,6 +45,7 @@ class Temp_Acciones_Prestamos(models.Model):
     num_cuota = models.IntegerField()
     fecha_cuota = models.DateField()
     capital = models.FloatField()
+    Descuento = models.FloatField()
     Intereses = models.FloatField()
     total_cuota = models.FloatField()
     saldo = models.FloatField()

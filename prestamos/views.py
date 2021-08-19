@@ -331,9 +331,11 @@ class Prestamo_A_Pagar(ListView):
         cuoata_apagar= Acciones_Prestamos.objects.get(id_prestamo=id_p, num_cuota=cuota)
         monto_por_pagar = float(request.POST['Monto'])
         delta = monto_por_pagar- cuoata_apagar.Monto
+
         if delta>=0:
             cuoata_apagar.Pago = monto_por_pagar
             cuoata_apagar.Saldo = round(cuoata_apagar.Saldo-delta,2)
+            cuoata_apagar.save()
             if delta>0:
                 self.recalcular_pago(id_p,cuota)
 
@@ -377,10 +379,10 @@ class Prestamo_A_Pagar(ListView):
         p_gracia = prestamo.Periodo_Gracia
         i_mensual = prestamo.taza_mensual
         cuotas = Acciones_Prestamos.objects.filter(id_prestamo=id)
-        cuota_modificada = cuotas[id_c]
+        cuota_modificada = Acciones_Prestamos.objects.get(id_prestamo=id, num_cuota=id_c)
         nuevo_saldo= cuota_modificada.Saldo
         for cuota in cuotas:
-            if cuota.num_cuota > id_c:
+            if cuota.num_cuota > cuota_modificada.num_cuota:
                 if cuota.num_cuota<= p_gracia:
                     nuevo_interes = nuevo_saldo*i_mensual
                     nuevo_total = nuevo_interes

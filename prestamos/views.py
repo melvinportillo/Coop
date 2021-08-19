@@ -327,9 +327,16 @@ class Prestamo_A_Pagar(ListView):
     def post(self, request, *args, **kwargs):
         id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
         id_p = int(id_prestamo.valor)
-        cuota = int(request.POST['Num_Cuota'])
+        cuota = self.cuota_por_pagar(id_p)
         cuoata_apagar= Acciones_Prestamos.objects.get(id_prestamo=id_p, num_cuota=cuota)
-        cuoata_apagar.Pago= float(request.POST['Monto'])
+        monto_por_pagar = float(request.POST['Monto'])
+        delta = monto_por_pagar- cuoata_apagar.Monto
+        if delta>=0:
+            cuoata_apagar.Pago = monto_por_pagar
+            cuoata_apagar.Saldo = round(cuoata_apagar.Saldo-delta,2)
+            if delta>0:
+                self.recalcular_pago(id_p,cuota)
+
         cuoata_apagar.Num_recibo = int(request.POST['Recibo'])
         cuoata_apagar.save()
         id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
@@ -355,6 +362,44 @@ class Prestamo_A_Pagar(ListView):
 
 
         return  render(request,"transactions/Mostra A Pagar.html",context)
+
+    def cuota_por_pagar(self,num_prestamo):
+        resp=0
+        cuotas = Acciones_Prestamos.objects.filter(id_prestamo=num_prestamo)
+        for c in cuotas:
+            resp = c.num_cuota
+            if c.Num_recibo ==0:
+                break
+        return int(resp)
+
+    def recalcular_pago(self, id, id_c):
+        prestamo = Datos_prestamos.objects.get(id_prestamo=id)
+        p_gracia = prestamo.Periodo_Gracia
+        i_mensual = prestamo.taza_mensual
+        cuotas = Acciones_Prestamos.objects.filter(id_prestamo=id)
+        cuota_modificada = cuotas[id_c]
+        nuevo_saldo= cuota_modificada.Saldo
+        for cuota in cuotas:
+            if cuota.num_cuota > id_c:
+                if cuota.num_cuota<= p_gracia:
+                    nuevo_interes = nuevo_saldo*i_mensual
+                    nuevo_total = nuevo_interes
+                    cuota.Intereses=round(nuevo_interes,2)
+                    cuota.Monto= round(nuevo_interes,2)
+                    cuota.Saldo = round(nuevo_saldo,2)
+                else:
+                    pago_capital = cuota.Capital
+                    nuevo_capital = pago_capital
+                    if pago_capital > nuevo_saldo:
+                        nuevo_capital = nuevo_saldo
+                    nuevo_interes= nuevo_saldo*i_mensual
+                    nuevo_saldo = nuevo_saldo-nuevo_capital
+                    cuota.Capital=round(nuevo_capital,2)
+                    cuota.Intereses= round(nuevo_interes,2)
+                    cuota.Monto = round(nuevo_capital+nuevo_interes,2)
+                    cuota.Saldo= round(nuevo_saldo,2)
+                cuota.save()
+
 
 class GeneratePdf1(View):
     def get(self, request, *args, **kwargs):

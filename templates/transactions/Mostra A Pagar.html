@@ -61,10 +61,7 @@
         {% csrf_token %}
 
         <div class="mb-4">
-             <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Número de Cuota
-            </label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Num_Cuota" id="Num_Cuota"  required placeholder="Cuota a Pagar">
+
             <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
                 Monto
             </label>
@@ -85,6 +82,7 @@
             <th class="px-4 py-2">Fecha de Pago</th>
             <th class="px-4 py-2">Núm Recibo</th>
             <th class="px-4 py-2">Capital</th>
+            <th class="px-4 py-2">Descuento</th>
             <th class="px-4 py-2">Intereses</th>
             <th class="px-4 py-2">Total Cuota</th>
             <th class="px-4 py-2">Saldo</th>
@@ -98,6 +96,7 @@
             <td class="border px-4 py-2 text-center">{{ transaction.Fecha_Pago }}</td>
             <td class="border px-4 py-2 text-center">{{ transaction.Num_recibo }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Capital }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Descuento }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Intereses }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Monto }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Saldo }}</td>

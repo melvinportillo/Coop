@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block head_title %}Nuevo Ahorrante{% endblock %}
+
+
+
+{% block content %}
+    <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10">Nuevo Ahorrante</h1>
+    <hr />
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Cliente
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Cliente" id="Cliente"  required placeholder="Nombre del Cliente">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Identidad
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Identidad" id="Identidad"  required placeholder="Identidad del Cliente">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Beneficiarios
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Beneficiarios" id="Beneficiarios"  required placeholder="Beneficiarios del Cliente">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Observaciones
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Observaciones" id="Observaciones"  required placeholder="Observaciones del Cliente">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Déposito Inicial
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Déposito Inicial" id="Déposito Inicial"  required placeholder="Déposito Inicial">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Núm. Recibo
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Núm. Recibo" id="Núm. Recibo"  required placeholder="Núm. Recibo">
+        </div>
+        {% if messages %}
+            <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Crear
+        </button>
+    </form>
+
+{% endblock %}
+
+

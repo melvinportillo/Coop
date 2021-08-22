@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from datetime import datetime
+from datetime import datetime, date
 from datetime import timedelta
 from django.template import Template, Context, RequestContext
 from django import forms
@@ -20,8 +20,14 @@ def Prestamos(request):
             generar_prestamo(request)
             return  redirect("mostrar/")
 
+    A = Variables_Generales(
+        variable="Interes_mora",
+        valor = "0.001"
+    )
+    A.save()
 
     return  render(request, "transactions/Prestamos.html")
+
 
 class Inicio(TemplateView):
     template_name='transactions/Index.html'
@@ -152,7 +158,7 @@ class mostra_prestamp(ListView):
             'Monto':prest.Monto,
             'Intereses': prest.Intereses,
 
-            'Mora': "0.0001"
+            'Mora': Variables_Generales.objects.get(variable="Interes_mora")
 
         })
         return  context
@@ -178,7 +184,7 @@ class GeneratePdf(View):
             'Monto': prest.Monto,
             'Intereses': prest.Intereses,
             'object_list': lista,
-            'Mora': "0.0001"
+            'Mora': Variables_Generales.objects.get(variable="Interes_mora")
 
         }
         pdf = render_to_pdf('pdf/prestamo_pdf.html', context)
@@ -220,6 +226,8 @@ def Guardar(request):
             Descuento=cuota.Descuento,
             Intereses= cuota.Intereses,
             Pago= 0,
+            Saldo_mora= 0,
+            Intereses_moratorios=0,
             Saldo= cuota.saldo
         )
         P2.save()
@@ -301,6 +309,7 @@ class Prestamo_A_Pagar(ListView):
         context = super().get_context_data(**kwargs)
         id_prestamo = Variables_Generales.objects.get(variable="Id_Prestamo_1")
         id_p= int(id_prestamo.valor)
+        self.calcular_mora(id_p)
         datos_prestamo= Datos_prestamos.objects.get(id_prestamo=id_p)
         context.update({
             'Cliente': datos_prestamo.nombre_cliente,
@@ -338,6 +347,12 @@ class Prestamo_A_Pagar(ListView):
             cuoata_apagar.save()
             if delta>0:
                 self.recalcular_pago(id_p,cuota)
+        else:
+            cuoata_apagar.Pago = monto_por_pagar
+            monto_por_pagar=monto_por_pagar-cuoata_apagar.Intereses_moratorios
+            monto_por_pagar= monto_por_pagar-cuoata_apagar.Intereses
+            mora = cuoata_apagar.Capital-monto_por_pagar
+            cuoata_apagar.Saldo_mora= round(mora,2)
 
         cuoata_apagar.Num_recibo = int(request.POST['Recibo'])
         cuoata_apagar.save()
@@ -366,7 +381,7 @@ class Prestamo_A_Pagar(ListView):
         return  render(request,"transactions/Mostra A Pagar.html",context)
 
     def cuota_por_pagar(self,num_prestamo):
-        resp=0
+        resp=1
         cuotas = Acciones_Prestamos.objects.filter(id_prestamo=num_prestamo)
         for c in cuotas:
             resp = c.num_cuota
@@ -401,6 +416,23 @@ class Prestamo_A_Pagar(ListView):
                     cuota.Monto = round(nuevo_capital+nuevo_interes,2)
                     cuota.Saldo= round(nuevo_saldo,2)
                 cuota.save()
+
+    def calcular_mora(self,id_p):
+        num_cuota = self.cuota_por_pagar(id_p)
+        cuota =  Acciones_Prestamos.objects.get(id_prestamo=id_p, num_cuota=num_cuota)
+        fecha_couta= cuota.Fecha_Pago
+        delta = fecha_couta - date.today()
+        if delta.days <0 :
+            interes_diario_mora = Variables_Generales.objects.get(variable="Interes_mora")
+            interes_diario_mora= float(interes_diario_mora.valor)
+            mora =  cuota.Saldo_mora*interes_diario_mora*30
+            mora = mora + cuota.Capital*interes_diario_mora*abs(delta.days)
+            cuota.Intereses_moratorios=round(mora,2)
+            cuota.Monto = round(cuota.Monto+mora,2)
+            cuota.save()
+
+
+
 
 
 class GeneratePdf1(View):

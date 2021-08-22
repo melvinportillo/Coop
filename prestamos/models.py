@@ -26,8 +26,9 @@ class Acciones_Prestamos(models.Model):
     Descuento = models.FloatField()
     Intereses = models.FloatField()
     Pago = models.FloatField()
-    Saldo = models.FloatField(
-    )
+    Saldo = models.FloatField()
+    Saldo_mora = models.FloatField()
+    Intereses_moratorios= models.FloatField()
 
 class Temp_Datos_prestamos(models.Model):
     id_persona = models.CharField(max_length=15)

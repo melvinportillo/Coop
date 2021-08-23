@@ -110,7 +110,7 @@ def guardar(request):
        Identidad= datos.Identidad,
        Nombre= datos.Nombre,
        Beneficiarios= datos.Beneficiarios,
-       Observacions= datos.Observacions
+       Observacions= datos.Observacions,
      )
      A1.save()
 
@@ -122,7 +122,125 @@ def guardar(request):
              Deposito= accion.Deposito,
              Intereses=accion.Intereses,
              Retiro=accion.Retiro,
-             Saldo=accion.Saldo
+             Saldo=accion.Saldo,
          )
          A2.save()
+
      return render(request,"transactions/Libro_Diario.html")
+
+
+class Buscar_Ahorrante(TemplateView):
+    template_name = "ahorros/Buscar_ahorrante.html"
+
+    def post(self, request, *args, **kwargs):
+        Temp_Datos_Acciones_Ahorro.objects.filter(usuario=self.request.user.username).delete()
+        Temp_Datos_Acciones_Ahorro.objects.filter(usuario=self.request.user.username).delete()
+        identidad = self.request.POST['Identidad']
+        datos = Datos_Ahorros.objects.get(Identidad=identidad)
+
+        acciones = Acciones_Ahorros.objects.filter(Identidad=identidad)
+
+        A1 = Temp_Datos_Ahorrante(
+            usuario= request.user.username,
+            Identidad=  datos.Identidad,
+            Nombre= datos.Nombre,
+            Beneficiarios=datos.Beneficiarios,
+            Observacions=datos.Observacions
+
+        )
+        A1.save()
+
+        for accion in acciones:
+            A2 = Temp_Datos_Acciones_Ahorro(
+                usuario= request.user.username,
+                Identidad= accion.Identidad,
+                Fecha= accion.Fecha,
+                Num_Recibo=accion.Num_Recibo,
+                Deposito=accion.Deposito,
+                Intereses=accion.Intereses,
+                Retiro=accion.Retiro,
+                Saldo=accion.Saldo
+            )
+            A2.save()
+
+        return redirect('ahorros:mostrar_temp_1')
+
+class Mostrar_Temp_1(ListView):
+    template_name = "ahorros/Ahorrante_mostrar_pago.html"
+    model = Temp_Datos_Acciones_Ahorro
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        info = Temp_Datos_Ahorrante.objects.filter(usuario= self.request.user.username)
+        pres = info[0]
+        ctx.update({
+            'Cliente': pres.Nombre,
+            'Identidad': pres.Identidad,
+            'Beneficiarios': pres.Beneficiarios,
+            'Observaciones': pres.Observacions,
+        })
+
+        return ctx
+    def get_queryset(self):
+        user = self.request.user.username
+        return  Temp_Datos_Acciones_Ahorro.objects.filter(usuario=user)
+
+    def post(self, request, *args, **kwargs):
+        acciones = Temp_Datos_Acciones_Ahorro.objects.filter(usuario=self.request.user.username)
+        ultima = acciones.last()
+        saldo = ultima.Saldo
+
+        accion_a_realizar  = self.request.POST['Accion']
+        cantidad_accion = float(self.request.POST['Cantidad'])
+        recibo = int(self.request.POST['Num_Recibo'])
+        if accion_a_realizar == 'Depositar':
+            new_saldo = saldo+cantidad_accion
+            A1 = Temp_Datos_Acciones_Ahorro(
+                Identidad= ultima.Identidad,
+                usuario= self.request.user.username,
+                Fecha= date.today(),
+                Num_Recibo=recibo,
+                Deposito=cantidad_accion,
+                Retiro=0,
+                Intereses=0,
+                Saldo= new_saldo,
+            )
+            A1.save()
+            A2 = Acciones_Ahorros(
+                Identidad=ultima.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Deposito=cantidad_accion,
+                Retiro=0,
+                Intereses=0,
+                Saldo=new_saldo,
+            )
+            A2.save()
+        else:
+            if cantidad_accion>saldo:
+                messages.error(request, "Error, no se puede retirar esa cantidad", "Retiro mayor a saldo")
+            else:
+                new_saldo = saldo - cantidad_accion
+                A1 = Temp_Datos_Acciones_Ahorro(
+                    Identidad=ultima.Identidad,
+                    usuario=self.request.user.username,
+                    Fecha=date.today(),
+                    Num_Recibo=recibo,
+                    Deposito=0,
+                    Retiro= cantidad_accion,
+                    Intereses=0,
+                    Saldo=new_saldo,
+                )
+                A1.save()
+                A2 = Acciones_Ahorros(
+                    Identidad=ultima.Identidad,
+                    Fecha=date.today(),
+                    Num_Recibo=recibo,
+                    Deposito=0,
+                    Retiro=cantidad_accion,
+                    Intereses=0,
+                    Saldo=new_saldo,
+                )
+                A2.save()
+
+        return redirect('ahorros:mostrar_temp_1')
+

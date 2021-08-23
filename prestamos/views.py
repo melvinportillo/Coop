@@ -20,11 +20,16 @@ def Prestamos(request):
             generar_prestamo(request)
             return  redirect("mostrar/")
 
-    A = Variables_Generales(
-        variable="Interes_mora",
-        valor = "0.001"
-    )
-    A.save()
+
+
+    LA = Variables_Generales.objects.filter(variable="Interes_mora").count()
+
+    if LA==0:
+        A = Variables_Generales(
+            variable="Interes_mora",
+            valor = "0.001"
+        )
+        A.save()
 
     return  render(request, "transactions/Prestamos.html")
 
@@ -158,7 +163,7 @@ class mostra_prestamp(ListView):
             'Monto':prest.Monto,
             'Intereses': prest.Intereses,
 
-            'Mora': Variables_Generales.objects.get(variable="Interes_mora")
+            'Mora': Variables_Generales.objects.get(variable="Interes_mora").valor
 
         })
         return  context

@@ -1,8 +1,11 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import  TemplateView, ListView
 from django.contrib import messages
 from datetime import date
+from django.views import View
 from .models import  Temp_Datos_Ahorrante, Temp_Datos_Acciones_Ahorro, Acciones_Ahorros, Datos_Ahorros
+from .utils import render_to_pdf
 # Create your views here.
 
 class Index(TemplateView):
@@ -35,11 +38,13 @@ class Crear_Cuenta (TemplateView):
             }
             return  render(request, "ahorros/Nuevo_Ahorrante.html",context=c)
         else:
-            Temp_Datos_Ahorrante.objects.all().delete()
-            Temp_Datos_Acciones_Ahorro.objects.all().delete()
+            user= request.user.username
+            Temp_Datos_Ahorrante.objects.filter(usuario=user).delete()
+            Temp_Datos_Acciones_Ahorro.objects.filter(usuario=user).delete()
             A1 = Temp_Datos_Ahorrante(
                 Identidad=request.POST['Identidad'],
                 Nombre= request.POST['Cliente'],
+                usuario=user,
                 Beneficiarios= request.POST['Beneficiarios'],
                 Observacions=request.POST['Observaciones'],
 
@@ -47,6 +52,7 @@ class Crear_Cuenta (TemplateView):
             A1.save()
             A2 = Temp_Datos_Acciones_Ahorro(
                     Fecha= date.today(),
+                    usuario=request.user.username,
                     Identidad= request.POST['Identidad'],
                     Num_Recibo=request.POST['Núm. Recibo'],
                     Deposito= float(request.POST['Déposito Inicial']),
@@ -66,7 +72,7 @@ class Mostrar_Temp(ListView):
     model = Temp_Datos_Acciones_Ahorro
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        info = Temp_Datos_Ahorrante.objects.all()
+        info = Temp_Datos_Ahorrante.objects.filter(usuario= self.request.user.username)
         pres = info[0]
         ctx.update({
             'Cliente': pres.Nombre,
@@ -77,4 +83,46 @@ class Mostrar_Temp(ListView):
 
         return ctx
     def get_queryset(self):
-        return  Temp_Datos_Acciones_Ahorro.objects.all()
+        user = self.request.user.username
+        return  Temp_Datos_Acciones_Ahorro.objects.filter(usuario=user)
+
+
+class generar_pdf(View):
+    def get(self, request, *args, **kwargs):
+        ob = Temp_Datos_Acciones_Ahorro.objects.filter(usuario=request.user.username)
+        presta= Temp_Datos_Ahorrante.objects.filter(usuario=request.user.username)
+        dato= presta[0]
+        ctx = {
+            'Cliente': dato.Nombre,
+            'Identidad': dato.Identidad,
+            'Beneficiarios': dato.Beneficiarios,
+            'Observaciones': dato.Observacions,
+            'object_list': ob
+        }
+        pdf= render_to_pdf('pdf/ahorros_mostrar.html',ctx)
+        return HttpResponse(pdf, content_type='ahorros/pdf')
+
+def guardar(request):
+     datos = Temp_Datos_Ahorrante.objects.get(usuario=request.user.username)
+     acciones = Temp_Datos_Acciones_Ahorro.objects.filter(usuario=request.user.username)
+
+     A1 = Datos_Ahorros(
+       Identidad= datos.Identidad,
+       Nombre= datos.Nombre,
+       Beneficiarios= datos.Beneficiarios,
+       Observacions= datos.Observacions
+     )
+     A1.save()
+
+     for accion in acciones:
+         A2 = Acciones_Ahorros(
+             Identidad= accion.Identidad,
+             Fecha= accion.Fecha,
+             Num_Recibo=accion.Num_Recibo,
+             Deposito= accion.Deposito,
+             Intereses=accion.Intereses,
+             Retiro=accion.Retiro,
+             Saldo=accion.Saldo
+         )
+         A2.save()
+     return render(request,"transactions/Libro_Diario.html")

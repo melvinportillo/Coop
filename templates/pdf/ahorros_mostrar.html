@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Prestamo</title>
+    <style type="text/css">
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+        </style>
+</head>
+<body>
+<div>
+    <label>
+        Cliente: {{Cliente}}
+    </label>
+    <label>
+        Identidad: {{ Identidad }}
+    </label>
+    <label>
+        Beneficiarios: {{ Beneficiarios }}
+    </label>
+    <label>
+        Observaciones: {{ Observaciones }}
+    </label>
+
+</div>
+ <table class="table-auto mx-auto w-full mt-8">
+        <thead class="bg-gray-800 text-white">
+        <tr class="uppercase font-semibold text-sm">
+            <th class="px-4 py-2">Fecha</th>
+            <th class="px-4 py-2">Núm. Recibo</th>
+            <th class="px-4 py-2">Deposito</th>
+            <th class="px-4 py-2">Interes</th>
+            <th class="px-4 py-2">Retiro</th>
+            <th class="px-4 py-2">Saldo</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in object_list %}
+        <tr class="{% cycle 'bg-gray-300' 'bg-white-100' %}">
+            <td class="border px-4 py-2 text-center">{{ transaction.Fecha }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Num_Recibo }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Deposito }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Intereses }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Retiro }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Saldo }}</td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</body>
+</html>

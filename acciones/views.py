@@ -1,7 +1,9 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import  TemplateView, ListView
+from django.views.generic import  TemplateView, ListView, View
 from django.contrib import messages
 from datetime import date
+from .utils import render_to_pdf
 from .models import Acciones_accionista, Datos_Accionista, Temp_Acciones_accionista, Temp_Datos_Accionista
 # Create your views here.
 
@@ -109,3 +111,48 @@ class Mostrar_temp(ListView):
         return ctx
     def get_queryset(self):
         return Temp_Acciones_accionista.objects.filter(Usuario=self.request.user.username)
+
+class generar_pdf(View):
+    def get(self, request, *args, **kwargs):
+        ob = Temp_Acciones_accionista.objects.filter(Usuario=request.user.username)
+        presta = Temp_Datos_Accionista.objects.get(Usuario=request.user.username)
+
+        ctx = {
+            'Cliente': presta.Nombre,
+            'Identidad': presta.Identidad,
+            'Fecha_Ingreso': presta.Fecha_Ingreso,
+            'Fundador': presta.Fundador,
+            'object_list': ob
+        }
+        pdf= render_to_pdf('pdf/acciones_mostrar.html',ctx)
+        return HttpResponse(pdf, content_type='acciones/pdf')
+
+def guardar(request):
+    datos_accionista = Temp_Datos_Accionista.objects.get(Usuario=request.user.username)
+    acciones_accionista= Temp_Acciones_accionista.objects.get(Usuario=request.user.username)
+    A1 = Datos_Accionista(
+        Nombre= datos_accionista.Nombre,
+        Identidad=datos_accionista.Identidad,
+        Fecha_Ingreso=datos_accionista.Fecha_Ingreso,
+        Fundador=datos_accionista.Fundador
+    )
+    A1.save()
+
+    A2 = Acciones_accionista(
+        Fecha= acciones_accionista.Fecha,
+        Identidad=acciones_accionista.Identidad,
+        Num_Recibo=acciones_accionista.Num_Recibo,
+        Reglamento=acciones_accionista.Reglamento,
+        Extaordinaria=acciones_accionista.Extaordinaria,
+        Utilidad=acciones_accionista.Utilidad,
+        Donación=acciones_accionista.Donación,
+        Intereses=acciones_accionista.Intereses,
+        Perdidas=acciones_accionista.Perdidas,
+        Total=acciones_accionista.Total,
+    )
+
+    A2.save()
+    Temp_Acciones_accionista.objects.filter(Usuario=request.user.username).delete()
+    Temp_Datos_Accionista.objects.filter(Usuario=request.user.username).delete()
+
+    return render(request,"transactions/Libro_Diario.html")

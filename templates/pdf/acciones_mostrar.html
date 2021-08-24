@@ -1,43 +1,59 @@
-{% extends 'core/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Accionista</title>
+    <style type="text/css">
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+        </style>
+</head>
+<body>
+<div>
+    <label>
+        Cliente: {{Cliente}}
+    </label>
+    <label>
+        Identidad: {{ Identidad }}
+    </label>
+    <label>
+        Fecha de Ingreso: {{ Fecha_Ingreso }}
+    </label>
+    <label>
+        Miembro Fundador: {{ Fundador }}
+    </label>
 
-{% block head_title %}Accionista{% endblock %}
-
-
-
-{% block content %}
-    <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10">Accionista</h1>
-    <hr />
-
-        <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Cliente: {{Cliente}}
-            </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Identidad: {{ Identidad }}
-            </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Fecha de Ingreso: {{ Fecha_Ingreso }}
-            </label>
-
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Miembro Fundador: {{ Fundador }}
-            </label>
-
-        </div>
-        {% if messages %}
-            <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-         <a href="{% url 'acciones:imprimir' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Imprimir
-         </a>
-        <a href="{% url 'acciones:guardar' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Guardar
-         </a>
-    <table class="table-auto mx-auto w-full mt-8">
+</div>
+ <table class="table-auto mx-auto w-full mt-8">
         <thead class="bg-gray-800 text-white">
         <tr class="uppercase font-semibold text-sm">
             <th class="px-4 py-2">Fecha</th>
@@ -49,7 +65,6 @@
             <th class="px-4 py-2">Aportaciones por intereses</th>
             <th class="px-4 py-2">Reducción por pérdidas</th>
             <th class="px-4 py-2">Total</th>
-
         </tr>
         </thead>
         <tbody>
@@ -64,12 +79,10 @@
             <td class="border px-4 py-2 text-center">L {{ transaction.Intereses }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Perdidas }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Total }}</td>
-
         </tr>
         {% endfor %}
 
         </tbody>
     </table>
-{% endblock %}
-
-
+</body>
+</html>

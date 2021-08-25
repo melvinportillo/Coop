@@ -34,9 +34,31 @@
          <a href="{% url 'acciones:imprimir' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
                     Imprimir
          </a>
-        <a href="{% url 'acciones:guardar' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Guardar
-         </a>
+        <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+
+        <div class="mb-4">
+             <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Cantidad
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Cantidad" id="Cantidad"  required placeholder="Cantidad ">
+            <select name="Tipo_Apo" id="Tipo_Apo">
+                 <option value="reglamento">Aportación por reglamento</option>
+                 <option value="donación">Aportación por donación</option>
+                 <option value="extraordinaria">Aportación extraordinaria</option>
+                 <option value="reduccion">Retirar</option>
+            </select>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Num_Recibo
+            </label>
+             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Num_Recibo" id="Num_Recibo"  required placeholder="Num_Recibo ">
+            </select>
+        </div>
+
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Ejecutar
+        </button>
+    </form>
     <table class="table-auto mx-auto w-full mt-8">
         <thead class="bg-gray-800 text-white">
         <tr class="uppercase font-semibold text-sm">
@@ -47,7 +69,7 @@
             <th class="px-4 py-2">Aportación por utilidad</th>
             <th class="px-4 py-2">Aportación por donación</th>
             <th class="px-4 py-2">Aportaciones por intereses</th>
-            <th class="px-4 py-2">Reducción</th>
+            <th class="px-4 py-2">Reducción </th>
             <th class="px-4 py-2">Total</th>
 
         </tr>

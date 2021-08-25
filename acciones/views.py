@@ -156,3 +156,222 @@ def guardar(request):
     Temp_Datos_Accionista.objects.filter(Usuario=request.user.username).delete()
 
     return render(request,"transactions/Libro_Diario.html")
+
+class Buscar_Accionista(TemplateView):
+    template_name = "acciones/Buscar Accionista.html"
+
+    def  post(self, request, *args, **kwargs):
+        id = request.POST['Identidad']
+        accionistas = Datos_Accionista.objects.filter(Identidad=id)
+        if accionistas.count() ==0 :
+            messages.error(request,"No existe accionista con esa id", 'erro de id')
+            return  render(request,"acciones/Buscar Accionista.html")
+        else:
+            datos_accionista = Datos_Accionista.objects.get(Identidad=id)
+            acciones_accionista = Acciones_accionista.objects.filter(Identidad=id)
+
+            Temp_Acciones_accionista.objects.filter(Usuario= request.user.username).delete()
+            Temp_Datos_Accionista.objects.filter(Usuario=request.user.username).delete()
+
+            A1 = Temp_Datos_Accionista(
+                Usuario= request.user.username,
+                Nombre= datos_accionista.Nombre,
+                Identidad=datos_accionista.Identidad,
+                Fecha_Ingreso=datos_accionista.Fecha_Ingreso,
+                Fundador=datos_accionista.Fundador
+            )
+            A1.save()
+            for accion in acciones_accionista:
+                A2 = Temp_Acciones_accionista(
+                    Usuario= request.user.username,
+                    Identidad= accion.Identidad,
+                    Fecha=accion.Fecha,
+                    Num_Recibo=accion.Num_Recibo,
+                    Reglamento=accion.Reglamento,
+                    Extaordinaria=accion.Extaordinaria,
+                    Utilidad=accion.Utilidad,
+                    Donación=accion.Donación,
+                    Intereses=accion.Intereses,
+                    Perdidas=accion.Perdidas,
+                    Total=accion.Total
+
+                )
+                A2.save()
+            return redirect('acciones:mostrar_temp_1')
+
+
+class Mostrar_temp_1(ListView):
+    template_name ="acciones/Accionista_mostrar_pago.html"
+    model = Temp_Acciones_accionista
+
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx =super().get_context_data()
+        datos = Temp_Datos_Accionista.objects.get(Usuario=self.request.user.username)
+
+        ctx.update({
+            'Cliente': datos.Nombre,
+            'Identidad': datos.Identidad,
+            'Fecha_Ingreso': datos.Fecha_Ingreso,
+            'Fundador': datos.Fundador
+        })
+        return ctx
+    def get_queryset(self):
+        return Temp_Acciones_accionista.objects.filter(Usuario=self.request.user.username)
+
+    def  post(self, request, *args, **kwargs):
+        cantidad = request.POST['Cantidad']
+        cantidad=str(cantidad)
+        if cantidad.isdigit():
+            cantidad=float(cantidad)
+            if cantidad<=0:
+                messages.error(request,"Cantidad no valida", "no valida")
+                return redirect("acciones:mostrar_temp_1")
+        else:
+            messages.error(request,"Cantidad no valida","No valido")
+            return redirect("acciones:mostrar_temp_1")
+        recibo = request.POST['Num_Recibo']
+        recibo = str(recibo)
+
+        if recibo.isdigit():
+            recibo  =int(recibo)
+            if recibo<=0:
+                messages.error(request,"Núm de recibo no valido","Recibo no valido")
+                return redirect("acciones:mostrar_temp_1")
+        else:
+            messages.error(request, "Núm de recibo no valido", "Recibo no valido")
+            return redirect("acciones:mostrar_temp_1")
+        tipo_de_accion = request.POST['Tipo_Apo']
+
+        saldo = Temp_Acciones_accionista.objects.filter(Usuario=request.user.username).last().Total
+        datos  = Temp_Datos_Accionista.objects.get(Usuario=request.user.username)
+        if tipo_de_accion=="reglamento":
+            A1 = Temp_Acciones_accionista(
+                Usuario= request.user.username,
+                Identidad= datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo= recibo,
+                Reglamento=cantidad,
+                Extaordinaria=0.0,
+                Utilidad=0.0,
+                Donación=0.0,
+                Intereses=0.0,
+                Perdidas=0.0,
+                Total=saldo+cantidad
+
+            )
+            A1.save()
+
+            A1 = Acciones_accionista(
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=cantidad,
+                Extaordinaria=0.0,
+                Utilidad=0.0,
+                Donación=0.0,
+                Intereses=0.0,
+                Perdidas=0.0,
+                Total=saldo + cantidad
+
+            )
+            A1.save()
+
+        if tipo_de_accion=="donación":
+            A1 = Temp_Acciones_accionista(
+                Usuario=request.user.username,
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=0.0,
+                Extaordinaria=0.0,
+                Donación=cantidad,
+                Utilidad=0.0,
+                Intereses=0.0,
+                Perdidas=0.0,
+                Total=saldo + cantidad
+
+            )
+            A1.save()
+
+            A1 = Acciones_accionista(
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=0.0,
+                Extaordinaria=0.0,
+                Donación=cantidad,
+                Utilidad=0.0,
+                Intereses=0.0,
+                Perdidas=0.0,
+                Total=saldo + cantidad
+
+            )
+            A1.save()
+        if tipo_de_accion=="extraordinaria":
+            A1 = Temp_Acciones_accionista(
+                Usuario=request.user.username,
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=0.0,
+                Extaordinaria=cantidad,
+                Donación=0.0,
+                Utilidad=0.0,
+                Intereses=0.0,
+                Perdidas=0.0,
+                Total=saldo + cantidad
+
+            )
+            A1.save()
+
+            A1 = Acciones_accionista(
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=0.0,
+                Extaordinaria=cantidad,
+                Donación=0.0,
+                Utilidad=0.0,
+                Intereses=0.0,
+                Perdidas=0.0,
+                Total=saldo + cantidad
+
+            )
+            A1.save()
+        if tipo_de_accion=="reduccion":
+            if saldo < cantidad:
+                messages.error(request,"No se puede retirar esa cantidad","Monto mayor a saldi")
+                return redirect("acciones:mostrar_temp_1")
+            A1 = Temp_Acciones_accionista(
+                Usuario=request.user.username,
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=0.0,
+                Extaordinaria=0.0,
+                Donación=0.0,
+                Utilidad=0.0,
+                Intereses=0.0,
+                Perdidas=cantidad,
+                Total=saldo - cantidad
+
+            )
+            A1.save()
+
+            A1 = Acciones_accionista(
+                Identidad=datos.Identidad,
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Reglamento=0.0,
+                Extaordinaria=0.0,
+                Donación=0.0,
+                Utilidad=0.0,
+                Intereses=0.0,
+                Perdidas=cantidad,
+                Total=saldo - cantidad
+
+            )
+            A1.save()
+
+        return redirect("acciones:mostrar_temp_1")

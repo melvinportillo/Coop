@@ -7,12 +7,14 @@
 {% block content %}
     <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10"> Préstamos </h1>
     <hr />
-   <a href="{% url 'prestamos:prestamos' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Nuevo
+<center>
+   <a href="{% url 'prestamos:prestamos' %}" class="border rounded text-black border-red-900 hover:block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+                    <b>Nuevo</b>
    </a>
-    <a href="{% url 'prestamos:buscar' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Existente
+    <a href="{% url 'prestamos:buscar' %}" class="border rounded text-black border-red-900 hover:block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+                    <b>Existente</b>
    </a>
+</center>
 {% endblock %}
 
 

@@ -9,41 +9,41 @@
     <hr />
 
         <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Cliente: {{Cliente}}
+            <label class="block text-gray-700 text-sm for="amount">
+                <b>Cliente</b>: {{Cliente}}
             </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Identidad: {{ Identidad }}
+            <label class="block text-gray-700 text-sm for="amount">
+                <b>Identidad</b>: {{ Identidad }}
             </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Fecha Otorgado: {{ Fecha_O }}
-            </label>
-
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Plazo en Meses: {{ Plazo }}
+            <label class="block text-gray-700 text-sm for="amount">
+                <b>Fecha Otorgado</b>: {{ Fecha_O }}
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Taza de Interes Anual: {{ Tanual }}
+            <label class="block text-gray-700 text-sm for="amount">
+                <b>Plazo en Meses</b>: {{ Plazo }}
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Taza de Interes Mensual: {{ Tmensual }}
+            <label class="block text-gray-700 text-sm for="amount">
+             <b>   Taza de Interes Anual</b>: {{ Tanual }}
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Periodo de Gracia: {{ Pgracia }}
+            <label class="block text-gray-700 text-sm for="amount">
+             <b>   Taza de Interes Mensual</b>: {{ Tmensual }}
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-               Tasa de Descuento: {{ Descuento }}
+            <label class="block text-gray-700 text-sm for="amount">
+             <b>   Periodo de Gracia</b>: {{ Pgracia }}
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-               Monto: {{ Monto }}
+            <label class="block text-gray-700 text-sm for="amount">
+             <b>  Tasa de Descuento</b>: {{ Descuento }}
             </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-               Recago por Mora: {{ Mora }}
+
+            <label class="block text-gray-700 text-sm for="amount">
+            <b>   Monto</b>: {{ Monto }}
+            </label>
+            <label class="block text-gray-700 text-sm for="amount">
+             <b>  Recago por Mora</b>: {{ Mora }}
             </label>
         </div>
         {% if messages %}
@@ -53,11 +53,11 @@
             {% endfor %}
             </ul>
         {% endif %}
-         <a href="{% url 'prestamos:pdf' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Imprimir
+         <a href="{% url 'prestamos:pdf' %}" class="border rounded text-black border-red-900 hover:block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+                    <b>Imprimir</b>
          </a>
-        <a href="{% url 'prestamos:guardar' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    Guardar
+        <a href="{% url 'prestamos:guardar' %}" class="border rounded text-black border-red-900 hover:block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+                    <b>Guardar</b>
          </a>
     <table class="table-auto mx-auto w-full mt-8">
         <thead class="bg-gray-800 text-white">
@@ -92,5 +92,3 @@
         </tbody>
     </table>
 {% endblock %}
-
-

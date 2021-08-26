@@ -39,45 +39,64 @@
 </head>
 <body>
 <div>
+ <p>
     <label>
-        Cliente: {{Cliente}}
+        <b>Cliente</b>: {{Cliente}}
     </label>
+ </p>
+ <p>
     <label>
-        Identidad: {{ Identidad }}
+        <b>Identidad</b>: {{ Identidad }}
     </label>
+ </p>
+ <p>
     <label>
-        Fecha Otorgado: {{ Fecha_O }}
+        <b>Fecha Otorgado</b>: {{ Fecha_O }}
     </label>
+ </p>
+<p>
     <label>
-        Plazo en Meses: {{ Plazo }}
+        <b>Plazo en Meses</b>: {{ Plazo }}
     </label>
+</p>
+<p>
      <label>
-        Taza de Interes Anual: {{ Tanual }}
+        <b>Taza de Interes Anual</b>: {{ Tanual }}
     </label>
+</p>
+<p>
      <label>
-        Taza de Interes Mensual: {{ Tmensual }}
+        <b>Taza de Interes Mensual</b>: {{ Tmensual }}
     </label>
+</p>
+<p>
      <label>
-        Periodo de Gracia: {{ Pgracia }}
+        <b>Periodo de Gracia</b>: {{ Pgracia }}
     </label>
+</p>
+<p>
     <label>
-        Monto: {{ Monto }}
+        <b>Monto</b>: {{ Monto }}
     </label>
+</p>
+<p>
     <label>
-        Recago por Mora: {{ Mora }}
+        <b>Recago por Mora</b>: {{ Mora }}
     </label>
 </div>
+</p>
  <table class="table-auto mx-auto w-full mt-8">
         <thead class="bg-gray-800 text-white">
         <tr class="uppercase font-semibold text-sm">
-            <th class="px-4 py-2">Núm Cuota</th>
+            <th class="px-4 py-2">N&uacutem Cuota</th>
             <th class="px-4 py-2">Fecha de Pago</th>
-            <th class="px-4 py-2">Núm Recibo</th>
+            <th class="px-4 py-2">N&uacutem Recibo</th>
             <th class="px-4 py-2">Capital</th>
             <th class="px-4 py-2">Descuento</th>
             <th class="px-4 py-2">Intereses</th>
             <th class="px-4 py-2">Total Cuota</th>
             <th class="px-4 py-2">Saldo</th>
+            <th class="px-4 py-2">Saldo en Mora</th>
             <th class="px-4 py-2">Pago</th>
         </tr>
         </thead>
@@ -92,6 +111,7 @@
             <td class="border px-4 py-2 text-center">L {{ transaction.Intereses }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Monto }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Saldo }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Saldo_mora }}</td>
             <td class="border px-4 py-2 text-center">L {{ transaction.Pago }}</td>
         </tr>
         {% endfor %}

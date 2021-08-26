@@ -20,7 +20,7 @@ def Prestamos(request):
             generar_prestamo(request)
             return  redirect("mostrar/")
 
-    Variables_Generales.objects.all().delete()
+
 
     LA = Variables_Generales.objects.filter(variable="Interes_mora").count()
 
@@ -30,13 +30,7 @@ def Prestamos(request):
             valor = "0.001"
         )
         A.save()
-    else:
-        Variables_Generales.objects.all().delete()
-        A = Variables_Generales(
-            variable="Interes_mora",
-            valor="0.001"
-        )
-        A.save()
+
     return  render(request, "transactions/Prestamos.html")
 
 

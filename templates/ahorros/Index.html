@@ -8,11 +8,11 @@
     <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10"> Ahorrante </h1>
     <hr />
 <center>
-   <a href="{% url 'ahorros:nuevo' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    <b>Nuevo</b>
+   <a href="{% url 'ahorros:nuevo' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Nuevo
    </a>
-    <a href="{% url 'ahorros:buscar' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    <b>Existente</b>
+    <a href="{% url 'ahorros:buscar' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Existente
    </a>
  </center>
 {% endblock %}

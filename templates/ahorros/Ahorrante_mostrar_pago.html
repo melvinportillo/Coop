@@ -9,18 +9,18 @@
     <hr />
 
         <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Cliente: {{Cliente}}
+            <label class="block text-gray-700 text-sm" for="amount">
+                <b>Cliente</b>: {{Cliente}}
             </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Identidad: {{ Identidad }}
+            <label class="block text-gray-700 text-sm" for="amount">
+               <b> Identidad</b>: {{ Identidad }}
             </label>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Beneficiarios: {{ Beneficiarios }}
+            <label class="block text-gray-700 text-sm" for="amount">
+                <b>Beneficiarios</b>: {{ Beneficiarios }}
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
-                Observaciones: {{ Observaciones }}
+            <label class="block text-gray-700 text-sm" for="amount">
+                <b>Observaciones</b>: {{ Observaciones }}
             </label>
 
         </div>
@@ -54,7 +54,7 @@
             Ejecutar
         </button>
     </form>
-         <a href="{% url 'ahorros:imprimir' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+         <a href="{% url 'ahorros:imprimir' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                     Imprimir
          </a>
 

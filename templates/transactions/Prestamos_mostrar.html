@@ -53,11 +53,11 @@
             {% endfor %}
             </ul>
         {% endif %}
-         <a href="{% url 'prestamos:pdf' %}" class="border rounded text-black border-red-900 hover:block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    <b>Imprimir</b>
+         <a href="{% url 'prestamos:pdf' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Imprimir
          </a>
-        <a href="{% url 'prestamos:guardar' %}" class="border rounded text-black border-red-900 hover:block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
-                    <b>Guardar</b>
+        <a href="{% url 'prestamos:guardar' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Guardar
          </a>
     <table class="table-auto mx-auto w-full mt-8">
         <thead class="bg-gray-800 text-white">

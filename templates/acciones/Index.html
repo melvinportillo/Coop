@@ -7,12 +7,14 @@
 {% block content %}
     <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10"> Acciones </h1>
     <hr />
-   <a href="{% url 'acciones:nuevo' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+<center>
+   <a href="{% url 'acciones:nuevo' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                     Nuevo
    </a>
-    <a href="{% url 'acciones:buscar' %}" class="block mt-4 lg:inline-block lg:mt-0 text-black hover:text-red mr-4">
+    <a href="{% url 'acciones:buscar' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                     Existente
    </a>
+</center>
 {% endblock %}
 
 

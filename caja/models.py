@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date
+from django.utils.timezone import now
 # Create your models here.
 class Caja(models.Model):
     Fecha = models.DateField()
@@ -11,7 +12,7 @@ class Caja(models.Model):
 
 class Temp_Caja(models.Model):
     Usuario = models.CharField(max_length=15)
-    Fecha = models.DateField(default=date.today())
+    Fecha = models.DateField(default=now())
     Num_Recibo = models.IntegerField()
     Descripción = models.CharField(max_length=50)
     Entrada = models.FloatField()

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView
 from django.contrib import  messages
 from .models import Temp_Caja, Caja
-from datetime import  date
+from datetime import  date, timedelta
 from prestamos.models import Variables_Generales
 
 # Create your views here.
@@ -88,6 +88,18 @@ class Nuevo_Accion(TemplateView):
                 A1.save()
                 caja.valor = str(round(Saldo_Caja - cantidad))
 
+            Movimiento = Temp_Caja.objects.get(Usuario=self.request.user.username)
+
+            A1 = Caja(
+                Fecha=Movimiento.Fecha,
+                Num_Recibo=Movimiento.Num_Recibo,
+                Entrada=Movimiento.Entrada,
+                Descripción=Movimiento.Descripción,
+                Salida=Movimiento.Salida,
+                Saldo=Movimiento.Saldo
+            )
+            A1.save()
+
             caja.save()
 
             return redirect('caja:mostrar')
@@ -107,4 +119,29 @@ class Mostrar_Caja(ListView):
         return ctx
 
     def get_queryset(self):
-        return Temp_Caja.objects.filter(Usuario=self.request.user.username)
+        return Temp_Caja.objects.filter(Usuario=self.request.user.username, Fecha=date.today())
+
+
+class Filtrar_Caja (TemplateView):
+    template_name = "caja/Mostrar_Caja_Filtrada.html"
+
+    def Valiadcion(self,request):
+        Fecha_i = request.POST['Fecha_1']
+        Fecha_f = request.POST['Fecha_2']
+        if Fecha_i> Fecha_f :
+            messages.error(request,"Error en fechas introducidas","Error Fechas")
+            return False
+        return True
+
+    def post(self,request, *args, **kwargs):
+        v= self.Valiadcion(request)
+        if v==False:
+            return render(request,"caja/Mostrar_Caja_Filtrada.html")
+        else:
+            Fecha_i = request.POST['Fecha_1']
+            Fecha_f = request.POST['Fecha_2']
+            ob = Caja.objects.filter(Fecha__gte=Fecha_i, Fecha__lte=Fecha_f)
+            ctx = {
+                'object_list':ob
+            }
+            return  render(request,"caja/Mostrar_Caja_Filtrada.html",ctx)

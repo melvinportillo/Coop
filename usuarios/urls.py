@@ -15,7 +15,7 @@ urlpatterns = [
         "logout/", LogoutView.as_view(),
         name="user_logout"
     ),
-    path("profile/", Paso.as_view()),
+    path("profile/", Paso.as_view(),name="Libro Diario"),
     #path("profile/librodiario/", Cargar()),
 
 

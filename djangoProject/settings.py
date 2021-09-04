@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'ahorros',
     'acciones',
     'caja',
+    'inventario',
 ]
 
 MIDDLEWARE = [

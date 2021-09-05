@@ -11,8 +11,11 @@
    <a href="{% url 'inventario:nuevo' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                     Nuevo
    </a>
-    <a href="{% url 'caja:filtrar' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                    Filtrar
+    <a href="{% url 'inventario:filtrar1' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Filtrar Por Fechas
+   </a>
+    <a href="{% url 'inventario:filtrar2' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Filtrar Por Código
    </a>
  </center>
 {% endblock %}

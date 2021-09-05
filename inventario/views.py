@@ -75,3 +75,41 @@ class Mostrar(ListView):
         A1.save()
 
         return  redirect("usuarios:Libro Diario")
+
+class Filtrar_Fecha(TemplateView):
+    template_name = "inventario/Filtrar por fechas articulos.html"
+
+    def validacion(self,request):
+        fecha_i = request.POST['Fecha_1']
+        fecha_f = request.POST['Fecha_2']
+
+        if fecha_f< fecha_i:
+            messages.error(request,"Error en fechas", "Error en fechas")
+            return False
+        else:
+            return True
+
+    def post(self,request,*args,**kwargs):
+        v= self.validacion(request)
+        if v== True:
+            fecha_i = request.POST['Fecha_1']
+            fecha_f = request.POST['Fecha_2']
+            ob = Inventario.objects.filter(Fecha_Ingreso__gte=fecha_i, Fecha_Ingreso__lte=fecha_f)
+            ctx = {
+                'object_list': ob
+            }
+            return render(request, 'inventario/Filtrar por fechas articulos.html', ctx)
+        else:
+            return  render(request,'inventario/Filtrar por fechas articulos.html')
+
+class Filtrar_codigo(TemplateView):
+    template_name = "inventario/Filtrar_Codigo.html"
+
+    def post(self,request,*args,**kwargs):
+        codigo = request.POST['Código']
+        ob = Inventario.objects.filter(Codigo__icontains=codigo)
+        ctx = {
+            'object_list': ob
+        }
+        return  render(request,'inventario/Filtrar_Codigo.html',ctx)
+

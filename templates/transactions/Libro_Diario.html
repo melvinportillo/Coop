@@ -7,37 +7,37 @@
 {% block content %}
     <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10">Libro Diario</h1>
     <hr />
-    <form method="get">
-        <div class="mt-10 h-10 pl-3 pr-2 bg-white border rounded-md border-gray-500 flex justify-between items-center relative">
-            <input type="search" name="daterange" id="search" placeholder="Filter using date range" value="{{ request.GET.daterange }}" class="appearance-none w-full outline-none focus:outline-none active:outline-none" />
-            <button type="submit" class="ml-1 outline-none focus:outline-none active:outline-none">
-                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-6 h-6">
-                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </button>
-        </div>
-        {% if form.daterange.errors %}
-            {% for error in form.daterange.errors %}
-                <p class="text-red-600 text-sm italic">{{ error }}</p>
-            {% endfor %}
-        {% endif %}
-    </form>
+     <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+         <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                Fecha
+         </label>
+            <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha_1" id="Fecha_1"  required value=today>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Filtrar
+        </button>
+        </form>
     <table class="table-auto mx-auto w-full mt-8">
         <thead class="bg-gray-800 text-white">
         <tr class="uppercase font-semibold text-sm">
-            <th class="px-4 py-2">Transaction Type</th>
-            <th class="px-4 py-2">Date</th>
-            <th class="px-4 py-2">Amount</th>
-            <th class="px-4 py-2">Balance After Transaction</th>
+            <th class="px-4 py-2">Usuario</th>
+            <th class="px-4 py-2">Fecha</th>
+            <th class="px-4 py-2">Descripción</th>
+            <th class="px-4 py-2">Cuenta Debe</th>
+            <th class="px-4 py-2">Cuenta Haber</th>
+            <th class="px-4 py-2">Cuadre</th>
         </tr>
         </thead>
         <tbody>
         {% for transaction in object_list %}
         <tr class="{% cycle 'bg-gray-300' 'bg-white-100' %}">
-            <td class="border px-4 py-2 text-center">{{ transaction.get_transaction_type_display }}</td>
-            <td class="border px-4 py-2 text-center">{{ transaction.timestamp }}</td>
-            <td class="border px-4 py-2 text-center">$ {{ transaction.amount }}</td>
-            <td class="border px-4 py-2 text-center">$ {{ transaction.balance_after_transaction }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Usuario }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Fecha }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Descripcion }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Debe }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Haber }}</td>
+            <td class="border px-4 py-2 text-center">L {{ transaction.Cuadre }}</td>
+
         </tr>
         {% endfor %}
         <tr class="bg-gray-600 text-white">

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'acciones',
     'caja',
     'inventario',
+    'core',
 ]
 
 MIDDLEWARE = [

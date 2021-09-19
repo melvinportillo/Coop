@@ -2,7 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import get_user_model, login, logout
-from django.views.generic import TemplateView, RedirectView
+from django.views.generic import TemplateView, RedirectView, ListView
+from core.models import Libro_Diario
+from datetime import date
 from django.shortcuts import render
 # Create your views here.
 
@@ -22,7 +24,15 @@ class LogoutView(RedirectView):
 
 
 class Paso(TemplateView):
-    template_name='transactions/Libro_Diario.html'
+
+
+    def get(self, request, *args, **kwargs):
+        ob = Libro_Diario.objects.filter(Fecha=date.today())
+        ctx = {
+            'object_list': ob
+        }
+        return  render(request,'transactions/Libro_Diario.html',ctx)
+
 
 
 

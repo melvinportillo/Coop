@@ -3,8 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from datetime import datetime, date
 from datetime import timedelta
-from django.template import Template, Context, RequestContext
-from django import forms
+from core.models import Libro_Diario
 from django.views import View
 
 from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos, Datos_prestamos, Acciones_Prestamos, Variables_Generales
@@ -63,6 +62,7 @@ def generar_prestamo(request):
     Interese = generar_cuotas(request)
 
     temp = Temp_Datos_prestamos(
+        Usuario= request.user.username,
         id_persona=request.POST['Identidad'],
         nombre_cliente=request.POST['Cliente'],
         fecha_otorgado=datetime.strptime(request.POST['Fecha Otorgado'],"%Y-%m-%d").date(),
@@ -101,6 +101,7 @@ def generar_cuotas(request):
         fecha_cuota = fecha_1+ timedelta(days=30*x)
         saldo = round(saldo - capital_cuota, 2)
         cuota = Temp_Acciones_Prestamos(
+            Usuario=request.user.username,
             num_cuota=x+1,
             fecha_cuota=fecha_cuota,
             Descuento=0,
@@ -169,14 +170,14 @@ class mostra_prestamp(ListView):
         return  context
 
     def get_queryset(self):
-        return Temp_Acciones_Prestamos.objects.all()
+        return Temp_Acciones_Prestamos.objects.filter(Usuario=self.request.user.username)
 
 
 class GeneratePdf(View):
     def get(self, request, *args, **kwargs):
-        info = Temp_Datos_prestamos.objects.all()
+        info = Temp_Datos_prestamos.objects.filter(Usuario=request.user.username)
         prest = info[0]
-        lista= Temp_Acciones_Prestamos.objects.all()
+        lista= Temp_Acciones_Prestamos.objects.filter(Usuario=request.user.username)
         context={
             'Cliente': prest.nombre_cliente,
             'Identidad': prest.id_persona,
@@ -237,7 +238,16 @@ def Guardar(request):
         )
         P2.save()
 
-    return render(request, "transactions/Libro_Diario.html")
+    L = Libro_Diario(
+        Usuario=request.user.username,
+        Fecha= date.today(),
+        Descripcion="Prestamo a: " + prest.nombre_cliente,
+        Debe="Caja:-"+ str(prest.Monto),
+        Haber="Prestamos+"+ str(prest.Monto),
+        Cuadre=0.0
+    )
+    L.save()
+    return redirect("usuarios:Libro Diario")
 
 def Buscar_Prestamo(request):
     if request.method=="POST":

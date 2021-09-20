@@ -1,7 +1,7 @@
 
 from django.urls import path
 
-from .views import  LogoutView, UserLoginView, Paso
+from .views import  LogoutView, UserLoginView, Paso, Libro_Mayor_v
 
 
 app_name = 'usuarios'
@@ -16,7 +16,7 @@ urlpatterns = [
         name="user_logout"
     ),
     path("profile/", Paso.as_view(),name="Libro Diario"),
-    #path("profile/librodiario/", Cargar()),
+    path("libro_mayor", Libro_Mayor_v.as_view(), name='Libro_Mayor')
 
 
 ]

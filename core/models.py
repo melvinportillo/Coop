@@ -15,4 +15,4 @@ class Libro_Mayor(models.Model):
     Haber = models.FloatField()
     Fecha = models.DateField()
     Cuadre = models.FloatField()
-
+    Descripcion = models.CharField(max_length=100)

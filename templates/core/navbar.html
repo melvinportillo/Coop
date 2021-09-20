@@ -1,6 +1,6 @@
 <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
     <div class="flex items-center flex-shrink-0 text-white mr-6">
-        <span class="font-semibold text-xl tracking-tight">Cooperativa</span>
+        <a href="{% url 'usuarios:Libro Diario' %}" class="font-semibold text-xl tracking-tight">Cooperativa</a>
     </div>
     <div class="block lg:hidden">
         <button class="flex items-center px-3 py-2 border rounded text-white border-white-400 hover:text-white hover:border-white">
@@ -25,8 +25,8 @@
                  <a href="{% url 'inventario:index' %}" class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white">
                     Inventario &nbsp;&nbsp;&nbsp;
                 </a>
-                <a href="{% url 'prestamos:prestamos' %}" class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4">
-                    Balance General
+                <a href="{% url 'usuarios:Libro_Mayor' %}" class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4">
+                    Libro Mayor
                 </a>
             </div>
             <div>

@@ -5,6 +5,7 @@ from django.contrib import messages
 from datetime import date
 from .utils import render_to_pdf
 from .models import Acciones_accionista, Datos_Accionista, Temp_Acciones_accionista, Temp_Datos_Accionista
+from core.models import Libro_Diario, Libro_Mayor
 # Create your views here.
 
 class Index(TemplateView):
@@ -130,6 +131,7 @@ class generar_pdf(View):
 def guardar(request):
     datos_accionista = Temp_Datos_Accionista.objects.get(Usuario=request.user.username)
     acciones_accionista= Temp_Acciones_accionista.objects.get(Usuario=request.user.username)
+    Nombre = datos_accionista.Nombre
     A1 = Datos_Accionista(
         Nombre= datos_accionista.Nombre,
         Identidad=datos_accionista.Identidad,
@@ -152,10 +154,59 @@ def guardar(request):
     )
 
     A2.save()
+    cantidad_movimiento = acciones_accionista.Reglamento+ acciones_accionista.Extaordinaria+ acciones_accionista.Utilidad
+    cantidad_movimiento =cantidad_movimiento+ acciones_accionista.Donación
+    M1 = Libro_Diario(
+        Usuario=request.user.username,
+        Fecha=date.today(),
+        Descripcion="Depósito Acciones: "+ Nombre,
+        Debe= "Caja: +" + str(cantidad_movimiento),
+        Haber="Acciones_Miembros: -" + str(cantidad_movimiento),
+        Cuadre=0.0
+    )
+    M1.save()
+    c = Libro_Mayor.objects.filter(Cuenta="Acciones_Miembros").count()
+    if c==0:
+        M2 = Libro_Mayor(
+            Cuenta="Acciones_Miembros",
+            Debe=0.0,
+            Haber=cantidad_movimiento,
+            Fecha=date.today(),
+            Cuadre=-cantidad_movimiento,
+            Descripcion="Depósito Acciones: "+ Nombre
+        )
+        M2.save()
+    else:
+        cuadre = Libro_Mayor.objects.filter(Cuenta="Acciones_Miembros").last().Cuadre
+        M2 = Libro_Mayor(
+            Cuenta="Acciones_Miembros",
+            Debe=0.0,
+            Haber=cantidad_movimiento,
+            Fecha=date.today(),
+            Cuadre=cuadre-cantidad_movimiento,
+            Descripcion="Depósito Acciones: " + Nombre
+        )
+        M2.save()
+    cuadre_caja=0.0
+    c = Libro_Mayor.objects.filter(Cuenta="Caja").count()
+    if c>0:
+        cuadre_caja= Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+    M3 = Libro_Mayor(
+        Cuenta="Caja",
+        Debe=cantidad_movimiento,
+        Haber=0.0,
+        Cuadre=cuadre_caja+cantidad_movimiento,
+        Fecha=date.today(),
+        Descripcion="Depósito Acciones: " + Nombre
+
+
+    )
+    M3.save()
+
     Temp_Acciones_accionista.objects.filter(Usuario=request.user.username).delete()
     Temp_Datos_Accionista.objects.filter(Usuario=request.user.username).delete()
 
-    return render(request,"transactions/Libro_Diario.html")
+    return redirect("usuarios:Libro Diario")
 
 class Buscar_Accionista(TemplateView):
     template_name = "acciones/Buscar Accionista.html"

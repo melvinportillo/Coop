@@ -6,6 +6,7 @@ from datetime import date
 from django.views import View
 from .models import  Temp_Datos_Ahorrante, Temp_Datos_Acciones_Ahorro, Acciones_Ahorros, Datos_Ahorros
 from .utils import render_to_pdf
+from core.models import Libro_Diario, Libro_Mayor
 # Create your views here.
 
 class Index(TemplateView):
@@ -23,6 +24,10 @@ class Crear_Cuenta (TemplateView):
         dep = float(request.POST['Déposito Inicial'])
         if dep<=0:
             messages.error(request, "Error en Déposito Inicial", "Debe medir 13")
+            return False
+        c= Datos_Ahorros.objects.filter(Identidad=identidad).count()
+        if c>0:
+            messages.error(request,"Ahorrante ya existe", "Ya existe")
             return False
         return True
 
@@ -105,7 +110,7 @@ class generar_pdf(View):
 def guardar(request):
      datos = Temp_Datos_Ahorrante.objects.get(usuario=request.user.username)
      acciones = Temp_Datos_Acciones_Ahorro.objects.filter(usuario=request.user.username)
-
+     Nombre = datos.Nombre
      A1 = Datos_Ahorros(
        Identidad= datos.Identidad,
        Nombre= datos.Nombre,
@@ -126,7 +131,105 @@ def guardar(request):
          )
          A2.save()
 
-     return render(request,"transactions/Libro_Diario.html")
+     if accion.Deposito ==0:
+         M1 = Libro_Diario(
+             Usuario=request.user.username,
+             Fecha=date.today(),
+             Descripcion= "Retiro de "+ Nombre,
+             Debe= "Ahorros_Personas +" + str(accion.Retiro),
+             Haber= "Caja -" + str(accion.Retiro),
+             Cuadre= 0.0
+
+         )
+         M1.save()
+
+         c = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").count()
+         if c==0:
+             M2 = Libro_Mayor(
+                 Cuenta="Ahorros_Personas",
+                 Debe=float(accion.Retiro),
+                 Haber=0.0,
+                 Cuadre=-float(accion.Retiro),
+                 Fecha=date.today(),
+                 Descripcion="Retiro " + Nombre
+             )
+             M2.save()
+         else:
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
+            M2 = Libro_Mayor(
+                Cuenta="Ahorros_Personas",
+                Debe=float(accion.Retiro),
+                Haber=0.0,
+                Cuadre=cuadre+float(accion.Retiro),
+                Fecha=date.today(),
+                Descripcion="Retiro " + Nombre
+             )
+            M2.save()
+         saldo_caja=0.0
+         c2 = Libro_Mayor.objects.filter(Cuenta="Caja").count()
+         if c2>0:
+             saldo_caja= Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+
+         M3 = Libro_Mayor(
+             Cuenta="Caja",
+             Debe=0.0,
+             Haber=-accion.Retiro,
+             Cuadre= saldo_caja-accion.Retiro,
+             Fecha=date.today(),
+             Descripcion="Retiro " + Nombre,
+         )
+         M3.save()
+     else:
+         M1 = Libro_Diario(
+             Usuario=request.user.username,
+             Fecha=date.today(),
+             Descripcion="Depósito Ahorros " + Nombre,
+             Debe= "Caja +" + str(accion.Deposito),
+             Haber="Ahorros_Personas -" + str(accion.Deposito),
+             Cuadre=0.0
+
+         )
+         M1.save()
+
+         c = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").count()
+         if c == 0:
+             M2 = Libro_Mayor(
+                 Cuenta="Ahorros_Personas",
+                 Debe=0.0,
+                 Haber=float(accion.Deposito),
+                 Cuadre=-float(accion.Deposito),
+                 Fecha=date.today(),
+                 Descripcion="Depósito Ahorros: " + Nombre,
+             )
+             M2.save()
+         else:
+             cuadre = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
+             M2 = Libro_Mayor(
+                 Cuenta="Ahorros_Personas",
+                 Debe=0.0,
+                 Haber=float(accion.Deposito),
+                 Cuadre=cuadre - float(accion.Deposito),
+                 Fecha=date.today(),
+                 Descripcion="Depósito Ahorros: " + Nombre,
+             )
+             M2.save()
+         saldo_caja = 0.0
+         c2 = Libro_Mayor.objects.filter(Cuenta="Caja").count()
+         if c2 > 0:
+             saldo_caja = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+
+         M3 = Libro_Mayor(
+             Cuenta="Caja",
+             Debe=accion.Deposito,
+             Haber=0.0,
+             Cuadre=saldo_caja + accion.Deposito,
+             Fecha=date.today(),
+             Descripcion="Depósito Ahorros: " + Nombre,
+         )
+         M3.save()
+
+
+     return redirect("usuarios:Libro Diario")
 
 
 class Buscar_Ahorrante(TemplateView):
@@ -134,8 +237,12 @@ class Buscar_Ahorrante(TemplateView):
 
     def post(self, request, *args, **kwargs):
         Temp_Datos_Acciones_Ahorro.objects.filter(usuario=self.request.user.username).delete()
-        Temp_Datos_Acciones_Ahorro.objects.filter(usuario=self.request.user.username).delete()
+        Temp_Datos_Ahorrante.objects.filter(usuario=self.request.user.username).delete()
         identidad = self.request.POST['Identidad']
+        c= Datos_Ahorros.objects.filter(Identidad=identidad).count()
+        if c==0:
+            messages.error(request,"Ahorrante no existe","Ahorrante mal")
+            return  render(request,"ahorros/Buscar_ahorrante.html")
         datos = Datos_Ahorros.objects.get(Identidad=identidad)
 
         acciones = Acciones_Ahorros.objects.filter(Identidad=identidad)
@@ -192,6 +299,7 @@ class Mostrar_Temp_1(ListView):
         accion_a_realizar  = self.request.POST['Accion']
         cantidad_accion = float(self.request.POST['Cantidad'])
         recibo = int(self.request.POST['Num_Recibo'])
+        Nombre = Temp_Datos_Ahorrante.objects.filter(usuario=request.user.username).last().Nombre
         if accion_a_realizar == 'Depositar':
             new_saldo = saldo+cantidad_accion
             A1 = Temp_Datos_Acciones_Ahorro(
@@ -215,6 +323,39 @@ class Mostrar_Temp_1(ListView):
                 Saldo=new_saldo,
             )
             A2.save()
+
+
+
+            M1 = Libro_Diario(
+                Usuario=request.user.username,
+                Fecha=date.today(),
+                Descripcion="Depósito Ahorros " + Nombre,
+                Debe= "Caja: +" + str(cantidad_accion),
+                Haber= "Ahorros_Personas:-" +str(cantidad_accion),
+                Cuadre=0.0
+            )
+            M1.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+            M2 = Libro_Mayor(
+                Cuenta="Caja",
+                Debe= cantidad_accion,
+                Haber=0.0,
+                Fecha=date.today(),
+                Cuadre=cuadre+cantidad_accion,
+                Descripcion="Depósito Ahorros " + Nombre,
+            )
+            M2.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
+            M3 = Libro_Mayor(
+                Cuenta="Ahorros_Personas",
+                Debe=0.0,
+                Haber= cantidad_accion,
+                Cuadre=cuadre-cantidad_accion,
+                Descripcion="Depósito Ahorros " + Nombre,
+                Fecha=date.today(),
+
+            )
+            M3.save()
         else:
             if cantidad_accion>saldo:
                 messages.error(request, "Error, no se puede retirar esa cantidad", "Retiro mayor a saldo")
@@ -241,6 +382,35 @@ class Mostrar_Temp_1(ListView):
                     Saldo=new_saldo,
                 )
                 A2.save()
+                M1 = Libro_Diario(
+                    Usuario=request.user.username,
+                    Fecha=date.today(),
+                    Descripcion="Retiro Ahorros: " + Nombre,
+                    Debe= "Ahorros_Personas: +" + str(cantidad_accion),
+                    Haber = "Caja: -" + str(cantidad_accion),
+                    Cuadre=0.0
+                )
+                M1.save()
+                cuadre = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+                M2 = Libro_Mayor(
+                    Cuenta="Caja",
+                    Debe=0.0,
+                    Haber=cantidad_accion,
+                    Fecha=date.today(),
+                    Cuadre=cuadre-cantidad_accion,
+                    Descripcion="Retiro Ahorros: " + Nombre
+                )
+                M2.save()
+                cuadre= Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
+                M3 = Libro_Mayor(
+                    Cuenta="Ahorros_Personas",
+                    Debe=cantidad_accion,
+                    Haber=0.0,
+                    Fecha=date.today(),
+                    Cuadre=cuadre+cantidad_accion,
+                    Descripcion="Retiro Ahorros: " + Nombre
+                )
+                M3.save()
 
         return redirect('ahorros:mostrar_temp_1')
 

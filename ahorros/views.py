@@ -7,6 +7,7 @@ from django.views import View
 from .models import  Temp_Datos_Ahorrante, Temp_Datos_Acciones_Ahorro, Acciones_Ahorros, Datos_Ahorros
 from .utils import render_to_pdf
 from core.models import Libro_Diario, Libro_Mayor
+from caja.models import Caja
 # Create your views here.
 
 class Index(TemplateView):
@@ -179,6 +180,15 @@ def guardar(request):
              Descripcion="Retiro " + Nombre,
          )
          M3.save()
+         M4 = Caja(
+             Fecha=date.today(),
+             Num_Recibo=accion.Num_Recibo,
+             Descripción="Retiro " + Nombre,
+             Entrada=0.0,
+             Salida=accion.Retiro,
+             Saldo=saldo_caja-accion.Retiro
+         )
+         M4.save()
      else:
          M1 = Libro_Diario(
              Usuario=request.user.username,
@@ -228,6 +238,15 @@ def guardar(request):
          )
          M3.save()
 
+     M4 = Caja(
+         Fecha=date.today(),
+         Num_Recibo=accion.Num_Recibo,
+         Descripción="Depósito Ahorros: " + Nombre,
+         Entrada=accion.Deposito,
+         Salida=0.0,
+         Saldo=saldo_caja + accion.Deposito
+     )
+     M4.save()
 
      return redirect("usuarios:Libro Diario")
 
@@ -345,6 +364,15 @@ class Mostrar_Temp_1(ListView):
                 Descripcion="Depósito Ahorros " + Nombre,
             )
             M2.save()
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Depósito Ahorros " + Nombre,
+                Entrada=cantidad_accion,
+                Salida=0.0,
+                Saldo=cuadre+cantidad_accion
+            )
+            M4.save()
             cuadre = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
             M3 = Libro_Mayor(
                 Cuenta="Ahorros_Personas",
@@ -401,6 +429,15 @@ class Mostrar_Temp_1(ListView):
                     Descripcion="Retiro Ahorros: " + Nombre
                 )
                 M2.save()
+                M4 = Caja(
+                    Fecha=date.today(),
+                    Num_Recibo=recibo,
+                    Descripción="Retiro Ahorros: " + Nombre,
+                    Entrada=0.0,
+                    Salida=cantidad_accion,
+                    Saldo=cuadre-cantidad_accion
+                )
+                M4.save()
                 cuadre= Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
                 M3 = Libro_Mayor(
                     Cuenta="Ahorros_Personas",

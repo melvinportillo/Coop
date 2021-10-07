@@ -10,6 +10,7 @@ from prestamos.models import Temp_Datos_prestamos, Temp_Acciones_Prestamos, Dato
 from django.views.generic import TemplateView, RedirectView, ListView
 # Create your views here.
 from prestamos.utils import render_to_pdf
+from caja.models import Caja
 
 def Prestamos(request):
     if request.method=="POST":
@@ -41,6 +42,64 @@ def validacion_datos(request):
     if len(id) != 13:
         messages.error(request, "Error en Identidad", "Debe medir 13")
         return False
+    plazo = request.POST['Plazo']
+    s = str(plazo)
+    if s.isdigit()==False:
+        messages.error(request,"Error, plazo no correcto")
+        return False
+    else:
+        if int(plazo)<=0:
+            messages.error(request,"Plazo debe ser mayor que 0")
+            return False
+    taza = request.POST['Interes']
+    s = str(taza)
+    if s.isdigit()==False:
+        messages.error(request,"Error en Taza de intereses")
+        return False
+    else:
+        if float(taza)<0 or float(taza)>100:
+            messages.error(request,"Error en taza de interes")
+            return False
+    gracia = request.POST['Periodo de Gracia']
+    s=str(gracia)
+    if s.isdigit()==False:
+        messages.error(request,"Error en Periodo de Gracia")
+        return False
+    else:
+        if int(gracia)<=0 or int(gracia)>=int(plazo):
+            messages.error(request,"Error en Periodo de Gracia")
+            return False
+
+    monto = request.POST["Monto"]
+    s= str(monto)
+    if s.isdigit()==False:
+        messages.error(request,"Error en monto")
+        return False
+    else:
+        ahorros = Libro_Mayor.objects.filter(Cuenta="Ahorros_Personas").last().Cuadre
+        caja = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+        techo =(ahorros*0.3)*-1
+
+        if float(monto)<0:
+            messages.error(request,"Error en monto")
+            return False
+        else:
+            sobrante= caja-float(monto)
+            if sobrante<=0 or sobrante<techo:
+                messages.error(request,"No se puede prestar esa cantidad")
+                return False
+
+    descuento= request.POST['Descuento']
+    s=str(descuento)
+    if s.isdigit()==False:
+        messages.error(request,"Errro en Descuento")
+        return False
+    else:
+        if float(descuento)<0 or float(descuento)> float(monto):
+            messages.error(request, "Errro en Descuento")
+            return False
+
+
     FO = request.POST['Fecha Otorgado']
     FO = datetime.strptime(FO,"%Y-%m-%d").date()
     FP = request.POST['Fecha Primera Cuota']
@@ -276,6 +335,15 @@ def Guardar(request):
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M1.save()
+            M2 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=0,
+                Descripción="Préstamo a: " + prest.nombre_cliente,
+                Entrada=0.0,
+                Salida=prest.Monto,
+                Saldo=caja-prest.Monto
+            )
+            M2.save()
         else:
             Cuenta = Libro_Mayor.objects.filter(Cuenta='Prestamos_Miembros')
             Cuadre = Cuenta.last().Cuadre
@@ -301,6 +369,15 @@ def Guardar(request):
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M1.save()
+            M2 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=0,
+                Descripción="Préstamo a: " + prest.nombre_cliente,
+                Entrada=0.0,
+                Salida=prest.Monto,
+                Saldo=caja - prest.Monto
+            )
+            M2.save()
 
     else:
         L = Libro_Diario(
@@ -336,6 +413,15 @@ def Guardar(request):
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M1.save()
+            M2 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=0,
+                Descripción="Préstamo a: " + prest.nombre_cliente,
+                Entrada=0.0,
+                Salida=prest.Monto,
+                Saldo=caja - prest.Monto
+            )
+            M2.save()
         else:
             Cuenta = Libro_Mayor.objects.filter(Cuenta='Prestamos_Particulares')
             Cuadre = Cuenta.last().Cuadre
@@ -361,6 +447,15 @@ def Guardar(request):
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M1.save()
+            M2 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=0,
+                Descripción="Préstamo a: " + prest.nombre_cliente,
+                Entrada=0.0,
+                Salida=prest.Monto,
+                Saldo=caja - prest.Monto
+            )
+            M2.save()
 
 
 
@@ -491,14 +586,14 @@ class Prestamo_A_Pagar(ListView):
             cuoata_apagar.Pago = monto_por_pagar
             cuoata_apagar.Saldo = round(cuoata_apagar.Saldo-delta,2)
             cuoata_apagar.save()
-            self.Libros(monto_por_pagar,cuoata_apagar.Intereses,id_p)
+            self.Libros(monto_por_pagar-cuoata_apagar.Intereses,cuoata_apagar.Intereses,id_p,cuoata_apagar.Num_recibo)
             if delta>0:
                 self.recalcular_pago(id_p,cuota)
         else:
             cuoata_apagar.Pago = monto_por_pagar
             monto_por_pagar=monto_por_pagar-cuoata_apagar.Intereses_moratorios
             monto_por_pagar= monto_por_pagar-cuoata_apagar.Intereses
-            self.Libros(monto_por_pagar, cuoata_apagar.Intereses, id_p)
+            self.Libros(monto_por_pagar, cuoata_apagar.Intereses, id_p, cuoata_apagar.Num_recibo)
             mora = cuoata_apagar.Capital-monto_por_pagar
             cuoata_apagar.Saldo_mora= round(mora,2)
             self.recalcular_pago_mora(id_p,cuota,mora)
@@ -570,10 +665,11 @@ class Prestamo_A_Pagar(ListView):
                     cuota.Saldo= round(nuevo_saldo,2)
                 cuota.save()
 
-    def Libros(self, capital, intereses, id_prestamo):
+    def Libros(self, capital, intereses, id_prestamo,recibo):
         Datos= Datos_prestamos.objects.get(id_prestamo=id_prestamo)
         Cliente = Datos.nombre_cliente
         Miembro = Datos.miembro
+
         if Miembro=='S':
             M1 = Libro_Diario(
                 Usuario=self.request.user.username,
@@ -611,6 +707,15 @@ class Prestamo_A_Pagar(ListView):
                 Descripcion="Pago Cuota: "+ Cliente,
             )
             M3.save()
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Pago Cuota: "+ Cliente,
+                Entrada=capital+intereses,
+                Salida=0.0,
+                Saldo=caja+capital+intereses
+            )
+            M4.save()
         else:
             M1 = Libro_Diario(
                 Usuario=self.request.user.username,
@@ -648,7 +753,15 @@ class Prestamo_A_Pagar(ListView):
                 Descripcion="Pago Cuota: "+ Cliente,
             )
             M3.save()
-
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Pago Cuota: " + Cliente,
+                Entrada=capital + intereses,
+                Salida=0.0,
+                Saldo=caja + capital + intereses
+            )
+            M4.save()
 
 
 

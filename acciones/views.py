@@ -6,6 +6,7 @@ from datetime import date
 from .utils import render_to_pdf
 from .models import Acciones_accionista, Datos_Accionista, Temp_Acciones_accionista, Temp_Datos_Accionista
 from core.models import Libro_Diario, Libro_Mayor
+from caja.models import Caja
 # Create your views here.
 
 class Index(TemplateView):
@@ -202,6 +203,15 @@ def guardar(request):
 
     )
     M3.save()
+    M4 = Caja(
+        Fecha=date.today(),
+        Num_Recibo=acciones_accionista.Num_Recibo,
+        Descripción="Depósito Acciones: " + Nombre,
+        Entrada=cantidad_movimiento,
+        Salida=0.0,
+        Saldo=cuadre_caja+cantidad_movimiento,
+    )
+    M4.save()
 
     Temp_Acciones_accionista.objects.filter(Usuario=request.user.username).delete()
     Temp_Datos_Accionista.objects.filter(Usuario=request.user.username).delete()
@@ -296,6 +306,7 @@ class Mostrar_temp_1(ListView):
 
         saldo = Temp_Acciones_accionista.objects.filter(Usuario=request.user.username).last().Total
         datos  = Temp_Datos_Accionista.objects.get(Usuario=request.user.username)
+        Nombre = datos.Nombre
         if tipo_de_accion=="reglamento":
             A1 = Temp_Acciones_accionista(
                 Usuario= request.user.username,
@@ -328,6 +339,46 @@ class Mostrar_temp_1(ListView):
             )
             A1.save()
 
+            M1 = Libro_Diario(
+                Usuario= request.user.username,
+                Fecha=date.today(),
+                Descripcion= "Depósito Acciones: " + Nombre,
+                Debe= "Caja: +" + str(cantidad),
+                Haber="Acciones_Miembros: -" + str(cantidad),
+                Cuadre=0.0
+            )
+            M1.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Acciones_Miembros").last().Cuadre
+            M2 = Libro_Mayor(
+                Cuenta="Acciones_Miembros",
+                Debe=0.0,
+                Haber=cantidad,
+                Fecha=date.today(),
+                Cuadre=cuadre-cantidad,
+                Descripcion="Depósito Acciones: " + Nombre
+            )
+            M2.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+            M3 = Libro_Mayor(
+                Cuenta="Caja",
+                Debe=cantidad,
+                Haber=0.0,
+                Fecha=date.today(),
+                Cuadre=cuadre+cantidad,
+                Descripcion="Depósito Acciones: " + Nombre,
+            )
+            M3.save()
+
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Depósito Acciones: " + Nombre,
+                Entrada=cantidad,
+                Salida=0.0,
+                Saldo=cuadre+cantidad
+            )
+            M4.save()
+
         if tipo_de_accion=="donación":
             A1 = Temp_Acciones_accionista(
                 Usuario=request.user.username,
@@ -359,6 +410,44 @@ class Mostrar_temp_1(ListView):
 
             )
             A1.save()
+            M1 = Libro_Diario(
+                Usuario=request.user.username,
+                Fecha=date.today(),
+                Descripcion="Depósito Acciones: " + Nombre,
+                Debe="Caja: +" + str(cantidad),
+                Haber="Acciones_Miembros: -" + str(cantidad),
+                Cuadre=0.0
+            )
+            M1.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Acciones_Miembros").last().Cuadre
+            M2 = Libro_Mayor(
+                Cuenta="Acciones_Miembros",
+                Debe=0.0,
+                Haber=cantidad,
+                Fecha=date.today(),
+                Cuadre=cuadre - cantidad,
+                Descripcion="Depósito Acciones: " + Nombre
+            )
+            M2.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+            M3 = Libro_Mayor(
+                Cuenta="Caja",
+                Debe=cantidad,
+                Haber=0.0,
+                Fecha=date.today(),
+                Cuadre=cuadre + cantidad,
+                Descripcion="Depósito Acciones: " + Nombre,
+            )
+            M3.save()
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Depósito Acciones: " + Nombre,
+                Entrada=cantidad,
+                Salida=0.0,
+                Saldo=cuadre + cantidad
+            )
+            M4.save()
         if tipo_de_accion=="extraordinaria":
             A1 = Temp_Acciones_accionista(
                 Usuario=request.user.username,
@@ -390,6 +479,44 @@ class Mostrar_temp_1(ListView):
 
             )
             A1.save()
+            M1 = Libro_Diario(
+                Usuario=request.user.username,
+                Fecha=date.today(),
+                Descripcion="Depósito Acciones: " + Nombre,
+                Debe="Caja: +" + str(cantidad),
+                Haber="Acciones_Miembros: -" + str(cantidad),
+                Cuadre=0.0
+            )
+            M1.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Acciones_Miembros").last().Cuadre
+            M2 = Libro_Mayor(
+                Cuenta="Acciones_Miembros",
+                Debe=0.0,
+                Haber=cantidad,
+                Fecha=date.today(),
+                Cuadre=cuadre - cantidad,
+                Descripcion="Depósito Acciones: " + Nombre
+            )
+            M2.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+            M3 = Libro_Mayor(
+                Cuenta="Caja",
+                Debe=cantidad,
+                Haber=0.0,
+                Fecha=date.today(),
+                Cuadre=cuadre + cantidad,
+                Descripcion="Depósito Acciones: " + Nombre,
+            )
+            M3.save()
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Depósito Acciones: " + Nombre,
+                Entrada=cantidad,
+                Salida=0.0,
+                Saldo=cuadre + cantidad
+            )
+            M4.save()
         if tipo_de_accion=="reduccion":
             if saldo < cantidad:
                 messages.error(request,"No se puede retirar esa cantidad","Monto mayor a saldi")
@@ -424,5 +551,44 @@ class Mostrar_temp_1(ListView):
 
             )
             A1.save()
+            M1 = Libro_Diario(
+                Usuario=request.user.username,
+                Fecha=date.today(),
+                Descripcion="Retiro Acciones: " + Nombre,
+                Debe="Acciones_Miembros: +" + str(cantidad),
+                Haber="Caja: -" + str(cantidad),
+                Cuadre=0.0
+            )
+            M1.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Acciones_Miembros").last().Cuadre
+            M2 = Libro_Mayor(
+                Cuenta="Acciones_Miembros",
+                Debe=cantidad,
+                Haber=0.0,
+                Fecha=date.today(),
+                Cuadre=cuadre + cantidad,
+                Descripcion="Retiro Acciones: " + Nombre
+            )
+            M2.save()
+            cuadre = Libro_Mayor.objects.filter(Cuenta="Caja").last().Cuadre
+            M3 = Libro_Mayor(
+                Cuenta="Caja",
+                Debe=0.0,
+                Haber=cantidad,
+                Fecha=date.today(),
+                Cuadre=cuadre - cantidad,
+                Descripcion="Retiro Acciones: " + Nombre,
+            )
+            M3.save()
+
+            M4 = Caja(
+                Fecha=date.today(),
+                Num_Recibo=recibo,
+                Descripción="Retiro Acciones: " + Nombre,
+                Entrada=0.0,
+                Salida=cantidad,
+                Saldo=cuadre-cantidad
+            )
+            M4.save()
 
         return redirect("acciones:mostrar_temp_1")

@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block head_title %}Balance General{% endblock %}
+
+
+
+{% block content %}
+    <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10">Balance General</h1>
+    <hr />
+
+    <table class="table-auto mx-auto w-full mt-8">
+        <thead class="bg-gray-800 text-white">
+        <tr class="uppercase font-semibold text-sm">
+            <th class="px-4 py-2">Cuenta</th>
+            <th class="px-4 py-2">Saldo</th>
+            <th class="px-4 py-2"> Activo</th>
+            <th class="px-4 py-2"> Pasivo</th>
+            <th class="px-4 py-2"> Total</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in object_list %}
+        <tr class="{% cycle 'bg-gray-300' 'bg-white-100' %}">
+            <td class="border px-4 py-2 text-center">{{ transaction.Cuenta }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Saldo }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Activo }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Pasivo }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Total }}</td>
+
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
+
+

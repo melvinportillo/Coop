@@ -16,3 +16,10 @@ class Libro_Mayor(models.Model):
     Fecha = models.DateField()
     Cuadre = models.FloatField()
     Descripcion = models.CharField(max_length=100)
+
+class Balance_General(models.Model):
+    Cuenta = models.CharField(max_length=50)
+    Saldo = models.FloatField()
+    Activo = models.FloatField()
+    Pasivo  = models.FloatField()
+    Total = models.FloatField()

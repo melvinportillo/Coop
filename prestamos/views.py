@@ -315,10 +315,10 @@ def Guardar(request):
         if c==0:
             M = Libro_Mayor(
                 Cuenta="Prestamos_Miembros",
-                Debe = 0.0,
-                Haber = prest.Monto,
+                Debe = prest.Monto,
+                Haber = 0.0,
                 Fecha= date.today(),
-                Cuadre=-prest.Monto,
+                Cuadre=prest.Monto,
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M.save()
@@ -349,10 +349,10 @@ def Guardar(request):
             Cuadre = Cuenta.last().Cuadre
             M = Libro_Mayor(
                 Cuenta="Prestamos_Miembros",
-                Debe=0.0,
-                Haber=prest.Monto,
+                Debe=prest.Monto,
+                Haber=0.0,
                 Fecha=date.today(),
-                Cuadre=Cuadre-prest.Monto,
+                Cuadre=Cuadre+prest.Monto,
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M.save()
@@ -393,10 +393,10 @@ def Guardar(request):
         if c == 0:
             M = Libro_Mayor(
                 Cuenta="Prestamos_Particulares",
-                Debe=0.0,
-                Haber=prest.Monto,
+                Debe=prest.Monto,
+                Haber=0.0,
                 Fecha=date.today(),
-                Cuadre=-prest.Monto,
+                Cuadre=prest.Monto,
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M.save()
@@ -427,10 +427,10 @@ def Guardar(request):
             Cuadre = Cuenta.last().Cuadre
             M = Libro_Mayor(
                 Cuenta="Prestamos_Particulares",
-                Debe=0.0,
-                Haber=prest.Monto,
+                Debe=prest.Monto,
+                Haber=0.0,
                 Fecha=date.today(),
-                Cuadre=Cuadre - prest.Monto,
+                Cuadre=Cuadre + prest.Monto,
                 Descripcion="Préstamo a: " + prest.nombre_cliente,
             )
             M.save()
@@ -686,10 +686,10 @@ class Prestamo_A_Pagar(ListView):
                 c= Cuenta.last().Cuadre
             M2 = Libro_Mayor(
                 Cuenta="Prestamos_Miembros",
-                Debe= capital,
-                Haber=0.0,
+                Debe= 0.0,
+                Haber=capital,
                 Fecha=date.today(),
-                Cuadre=c+capital,
+                Cuadre=c-capital,
                 Descripcion="Pago Cuota: "+ Cliente,
 
             )
@@ -732,10 +732,10 @@ class Prestamo_A_Pagar(ListView):
                 c = Cuenta.last().Cuadre
             M2 = Libro_Mayor(
                 Cuenta="Prestamos_Particulares",
-                Debe=capital,
-                Haber=0.0,
+                Debe=0.0,
+                Haber=capital,
                 Fecha=date.today(),
-                Cuadre=c + capital,
+                Cuadre=c - capital,
                 Descripcion="Pago Cuota: "+ Cliente,
 
             )

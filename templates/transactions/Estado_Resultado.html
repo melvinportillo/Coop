@@ -1,0 +1,70 @@
+{% extends 'core/base.html' %}
+
+{% block head_title %}Estado de Resultado{% endblock %}
+
+
+
+{% block content %}
+    <h1 class="font-mono font-bold text-3xl text-center pb-5 pt-10">Estado de Resultado</h1>
+    <hr />
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+         <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+               Fecha 1 Inicio
+         </label>
+         <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha_1_i" id="Fecha_1_i"  required value=today>
+         <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+               Fecha 1 Final
+         </label>
+         <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha_1_f" id="Fecha_1_f"  required value=today>
+         <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+               Fecha 2 Inicio
+         </label>
+         <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha_2_i" id="Fecha_2_i"  required value=today>
+         <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+               Fecha 2 Final
+         </label>
+         <input type="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight border rounded-md border-gray-500 focus:outline-none focus:shadow-outline" name="Fecha_2_f" id="Fecha_2_f"  required value=today>
+
+         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Mostrar
+        </button>
+        </form>
+    <table class="table-auto mx-auto w-full mt-8">
+        <thead class="bg-gray-800 text-white">
+        <tr class="uppercase font-semibold text-sm">
+            <th class="px-4 py-2">Cuenta</th>
+            <th class="px-4 py-2">{{ Fecha_1 }}</th>
+            <th class="px-4 py-2"> {{ Fecha_2 }}</th>
+            <th class="px-4 py-2"> Saldo</th>
+            <th class="px-4 py-2"> Rojo</th>
+            <th class="px-4 py-2"> Amarillo</th>
+            <th class="px-4 py-2"> Verde</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in object_list %}
+        <tr class="{% cycle 'bg-gray-300' 'bg-white-100' %}">
+            <td class="border px-4 py-2 text-center" >{{ transaction.Cuenta }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Fecha_1 }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Fecha_2 }}</td>
+            <td class="border px-4 py-2 text-center">{{ transaction.Saldo }}</td>
+            <td class="border px-4 py-2 text-center text-Red" style="color:red">{{ transaction.Rojo }}</td>
+            <td class="border px-4 py-2 text-center text-yellow" style="color:goldenrod">{{ transaction.Amarillo }}</td>
+            <td class="border px-4 py-2 text-center text-green" style="color:green">{{ transaction.Verde }}</td>
+
+        </tr>
+        {% endfor %}
+        <tr class="bg-gray-600 ">
+            <th class="px-4 py-2 text-right" colspan="4"> Total</th>
+            <th class="px-4 py-2 text-center" style="color: darkred">L {{ total_r }}</th>
+            <th class="px-4 py-2 text-center" style="color:goldenrod">L {{ total_a }}</th>
+            <th class="px-4 py-2 text-center" style="color:darkgreen"> L {{ total_v }}</th>
+        </tr>
+        </tbody>
+        </tbody>
+    </table>
+{% endblock %}
+
+

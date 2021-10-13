@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Libro_Diario(models.Model):
-    Usuario = models.CharField(max_length=20)
+    Usuario = models.CharField(max_length=50)
     Fecha = models.DateField()
     Descripcion = models.CharField(max_length=100)
     Debe = models.CharField(max_length=150)

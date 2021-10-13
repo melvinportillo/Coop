@@ -51,7 +51,8 @@ class Nuevo_Accion(TemplateView):
         if v== True:
             cantidad = float(request.POST['Cantidad'])
             N_recibo = int(request.POST['Núm. Recibo'])
-            caja = Variables_Generales.objects.get(variable="Caja")
+            #caja = Variables_Generales.objects.get(variable="Caja")
+            caja=0.0
             Saldo_Caja =  float(caja.valor)
             Tipo = request.POST['Descrpción']
             Temp_Caja.objects.filter(Usuario=self.request.user.username).delete()

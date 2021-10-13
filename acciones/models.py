@@ -8,7 +8,7 @@ class Datos_Accionista(models.Model):
     Fundador = models.CharField(max_length=1)
 
 class Temp_Datos_Accionista(models.Model):
-    Usuario = models.CharField(max_length=15)
+    Usuario = models.CharField(max_length=50)
     Nombre = models.CharField(max_length=50)
     Identidad = models.CharField(max_length=15)
     Fecha_Ingreso = models.DateField()
@@ -27,7 +27,7 @@ class Acciones_accionista(models.Model):
     Total = models.FloatField()
 
 class Temp_Acciones_accionista(models.Model):
-    Usuario = models.CharField(max_length=15)
+    Usuario = models.CharField(max_length=50)
     Identidad = models.CharField(max_length=15)
     Fecha = models.DateField()
     Num_Recibo = models.IntegerField()

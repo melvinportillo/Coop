@@ -11,7 +11,7 @@ class Caja(models.Model):
     Saldo = models.FloatField()
 
 class Temp_Caja(models.Model):
-    Usuario = models.CharField(max_length=15)
+    Usuario = models.CharField(max_length=50)
     Fecha = models.DateField(default=now())
     Num_Recibo = models.IntegerField()
     Descripción = models.CharField(max_length=50)

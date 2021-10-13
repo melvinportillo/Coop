@@ -32,7 +32,7 @@ class Acciones_Prestamos(models.Model):
     Intereses_moratorios= models.FloatField()
 
 class Temp_Datos_prestamos(models.Model):
-    Usuario = models.CharField(max_length=50)
+    Usuario = models.CharField(max_length=15)
     id_persona = models.CharField(max_length=15)
     nombre_cliente = models.CharField(max_length=50)
     miembro = models.CharField(max_length=1)
@@ -46,7 +46,7 @@ class Temp_Datos_prestamos(models.Model):
 
 
 class Temp_Acciones_Prestamos(models.Model):
-    Usuario = models.CharField(max_length=50)
+    Usuario = models.CharField(max_length=15)
     num_cuota = models.IntegerField()
     fecha_cuota = models.DateField()
     capital = models.FloatField()
